@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "165599289780",
+    "project_id": "mystory-be36e",
+    "storage_bucket": "mystory-be36e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165599289780:android:635b8497b9cccdbdf4d2e1",
+        "android_client_info": {
+          "package_name": "com.example.mystory"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxsrJua5uSMMmHv0OgNKCkIFBU9PSNPT8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
