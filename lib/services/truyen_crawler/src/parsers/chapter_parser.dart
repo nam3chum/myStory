@@ -20,7 +20,7 @@ class ChapterListParser {
 
     try {
       final elements = document.querySelectorAll(ChapterSelectors.chapterList);
-6
+
       for (final element in elements) {
         try {
           final link = element.attributes['href'];
