@@ -22,7 +22,7 @@ class GenreStoryListScreen extends ConsumerStatefulWidget {
 class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  late final vm, vmRead;
+  late final GenreStoryViewModelNotifier vmRead;
   final List<Color> gradientColors = [
     Colors.deepPurple,
     Colors.purple,
@@ -42,7 +42,6 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
   @override
   void initState() {
     super.initState();
-    vm = ref.watch(genreStoryProvider);
     vmRead = ref.read(genreStoryProvider.notifier);
     _animationController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
     _fadeAnimation = Tween<double>(
@@ -51,7 +50,7 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
 
     Future.microtask(() {
-      vmRead.loadStories();
+      vmRead.loadStories(widget.genreId);
       vmRead.loadGenres();
     });
     _animationController.forward();
@@ -65,6 +64,7 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
 
   @override
   Widget build(BuildContext context) {
+    final vm = ref.watch(genreStoryProvider);
     final stories = ref.watch(genreStoryProvider.select((value) => value.listStory));
     final List<Story> filteredStories =
         stories.where((story) => story.genreId.any((g) => g == widget.genreId)).toList();
@@ -168,7 +168,7 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.refresh, color: Colors.white),
-                  onPressed: () => ref.read(genreStoryProvider.notifier).loadStories(),
+                  onPressed: () => ref.read(genreStoryProvider.notifier).loadStories(widget.genreId),
                 ),
               ),
             ],
@@ -228,7 +228,7 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
                               MaterialPageRoute(builder: (context) => StoryDetailPage(id: story.id)),
                             );
                           },
-                          child: BuildEnhancedStoryItem(
+                          child: StoryListItem(
                             index: index,
                             context: context,
                             gradientColors: gradientColors,

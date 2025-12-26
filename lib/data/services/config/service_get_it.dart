@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import 'package:mystory/data/services/pref/theme_preference.dart';
+import 'package:mystory/data/services/pref/preference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../database/database_controller.dart';

@@ -6,10 +6,10 @@ part of 'service_genre.dart';
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
 
 class _ApiGenreService implements ApiGenreService {
-  _ApiGenreService(this._dio) {
+  _ApiGenreService(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'https://684fbe32e7c42cfd1795bed4.mockapi.io/api/v1/genre';
   }
 
@@ -17,7 +17,7 @@ class _ApiGenreService implements ApiGenreService {
 
   String? baseUrl;
 
-  ParseErrorLogger? errorLogger;
+  final ParseErrorLogger? errorLogger;
 
   @override
   Future<List<Genre>> getGenres() async {
@@ -27,13 +27,21 @@ class _ApiGenreService implements ApiGenreService {
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<Genre>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(_dio.options, '', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
     late List<Genre> _value;
     try {
-      _value = _result.data!.map((dynamic i) => Genre.fromJson(i as Map<String, dynamic>)).toList();
+      _value =
+          _result.data!
+              .map((dynamic i) => Genre.fromJson(i as Map<String, dynamic>))
+              .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -50,7 +58,12 @@ class _ApiGenreService implements ApiGenreService {
     _data.addAll(genre.toJson());
     final _options = _setStreamType<Genre>(
       Options(method: 'POST', headers: _headers, extra: _extra)
-          .compose(_dio.options, '', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -72,7 +85,12 @@ class _ApiGenreService implements ApiGenreService {
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<Genre>(
       Options(method: 'DELETE', headers: _headers, extra: _extra)
-          .compose(_dio.options, '/${id}', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '/${id}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -90,12 +108,18 @@ class _ApiGenreService implements ApiGenreService {
   Future<Genre> updateGenre(String? id, Genre genre) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(genre.toJson());
     final _options = _setStreamType<Genre>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(_dio.options, '/${id}', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '/${id}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -117,7 +141,12 @@ class _ApiGenreService implements ApiGenreService {
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<Genre>(
       Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(_dio.options, '/${id}', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '/${id}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);

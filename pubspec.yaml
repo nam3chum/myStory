@@ -53,6 +53,9 @@ dependencies:
   flutter_riverpod: ^2.4.0
   get_it: any
   auto_size_text: any
+  html_parser_plus: any
+  html: ^0.15.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

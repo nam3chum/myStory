@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mystory/data/services/pref/theme_preference.dart';
-import 'package:mystory/views/home/home_screen.dart';
+import 'package:mystory/views/commons/app_init_error_view.dart';
+
+import 'package:mystory/views/main_screen/main_screen.dart';
 import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
 import 'data/services/config/app_init_viewmodel.dart';
@@ -24,30 +25,33 @@ class _AppStarterState extends ConsumerState<AppStarter> {
   @override
   void initState() {
     super.initState();
-    // gọi init ngay khi app start
     Future.microtask(() {
       ref.read(appInitViewModelProvider.notifier).initializeApp();
+      ref.read(settingsProvider.notifier).init();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeMode = ref.watch(settingsProvider).themeMode;
-    final isInitialized = ref.watch(appInitViewModelProvider);
-    ref.listen<SettingsState>(settingsProvider, (prev, next) {
-      final prefs = getIt<ThemePreference>();
-      prefs.saveFontSize(next.fontSize);
-    });
-    if (!isInitialized) {
-      return const MaterialApp(
-        home: Scaffold(body: Center(child: CircularProgressIndicator())),
-      );
-    }
+    final settings = ref.watch(settingsProvider);
+    final appInit = ref.watch(appInitViewModelProvider);
 
-    return MaterialApp(
-      themeMode: themeMode,
-      darkTheme: ThemeData.dark(),
-      home: const HomePage(),
+    return appInit.when(
+      data: (_) => MaterialApp(
+        themeMode: settings.themeMode,
+        darkTheme: ThemeData.dark(),
+        home: MainScreen(),
+      ),
+      error: (error, stackTrace) => MaterialApp(
+        home: AppInitErrorView(error: error, onRetry: () {
+          ref.invalidate(appInitViewModelProvider);
+        }),
+      ),
+      loading: () => const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      ),
     );
   }
 }

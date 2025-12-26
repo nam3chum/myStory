@@ -1,16 +1,15 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of '../network/service_story.dart';
+part of 'service_story.dart';
 
 // **************************************************************************
 // RetrofitGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
-
+// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter
 
 class _ApiStoryService implements ApiStoryService {
-  _ApiStoryService(this._dio) {
+  _ApiStoryService(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'https://684fbe32e7c42cfd1795bed4.mockapi.io/api/v1/story/';
   }
 
@@ -18,7 +17,7 @@ class _ApiStoryService implements ApiStoryService {
 
   String? baseUrl;
 
-  ParseErrorLogger? errorLogger;
+  final ParseErrorLogger? errorLogger;
 
   @override
   Future<List<Story>> getPagingStories({
@@ -33,13 +32,22 @@ class _ApiStoryService implements ApiStoryService {
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<Story>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(_dio.options, '', queryParameters: queryParameters, data: _data, cancelToken: cancelToken)
+          .compose(
+            _dio.options,
+            '',
+            queryParameters: queryParameters,
+            data: _data,
+            cancelToken: cancelToken,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
     late List<Story> _value;
     try {
-      _value = _result.data!.map((dynamic i) => Story.fromJson(i as Map<String, dynamic>)).toList();
+      _value =
+          _result.data!
+              .map((dynamic i) => Story.fromJson(i as Map<String, dynamic>))
+              .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -55,13 +63,21 @@ class _ApiStoryService implements ApiStoryService {
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<List<Story>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(_dio.options, '', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
     late List<Story> _value;
     try {
-      _value = _result.data!.map((dynamic i) => Story.fromJson(i as Map<String, dynamic>)).toList();
+      _value =
+          _result.data!
+              .map((dynamic i) => Story.fromJson(i as Map<String, dynamic>))
+              .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -77,7 +93,12 @@ class _ApiStoryService implements ApiStoryService {
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<Story>(
       Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(_dio.options, '/${id}', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '/${id}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -100,7 +121,12 @@ class _ApiStoryService implements ApiStoryService {
     _data.addAll(story.toJson());
     final _options = _setStreamType<Story>(
       Options(method: 'POST', headers: _headers, extra: _extra)
-          .compose(_dio.options, '', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -122,7 +148,12 @@ class _ApiStoryService implements ApiStoryService {
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<Story>(
       Options(method: 'DELETE', headers: _headers, extra: _extra)
-          .compose(_dio.options, '/${id}', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '/${id}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -140,12 +171,18 @@ class _ApiStoryService implements ApiStoryService {
   Future<Story> updateStory(String? id, Story story) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(story.toJson());
     final _options = _setStreamType<Story>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
-          .compose(_dio.options, '/${id}', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '/${id}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
@@ -168,7 +205,12 @@ class _ApiStoryService implements ApiStoryService {
     _data.addAll(data);
     final _options = _setStreamType<Story>(
       Options(method: 'PATCH', headers: _headers, extra: _extra)
-          .compose(_dio.options, '/${id}', queryParameters: queryParameters, data: _data)
+          .compose(
+            _dio.options,
+            '/${id}',
+            queryParameters: queryParameters,
+            data: _data,
+          )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);

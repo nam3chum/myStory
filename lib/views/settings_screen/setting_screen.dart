@@ -4,28 +4,16 @@ import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
 import '../../core/constants/enums/view_type.dart';
 
-class SettingsPage extends ConsumerStatefulWidget {
-  const SettingsPage({super.key});
+class SettingScreen extends ConsumerStatefulWidget {
+  const SettingScreen({super.key});
 
   @override
-  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingScreen> createState() => _SettingScreenState();
 }
 
-class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProviderStateMixin {
+class _SettingScreenState extends ConsumerState<SettingScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-
-  final List<String> availableFonts = [
-    'Roboto',
-    'Nunito',
-    'OpenSans',
-    'Lato',
-    'Poppins',
-    'Montserrat',
-    'Times New Roman',
-  ];
-
-  final List<String> languages = ['Theo hệ thống', 'Tiếng Việt', 'English', '中文', '日本語'];
 
   @override
   void initState() {
@@ -47,20 +35,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProvider
   @override
   Widget build(BuildContext context) {
     final settingVm = ref.watch(settingsProvider);
-
     final isDark = settingVm.themeMode == ThemeMode.dark;
 
     return Theme(
-      data: isDark ? _buildDarkTheme() : _buildLightTheme(),
+      data: isDark ? SettingsNotifier.buildDarkTheme() : SettingsNotifier.buildLightTheme(),
       child: Scaffold(
         backgroundColor: isDark ? Colors.black : Colors.white,
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: isDark ? Colors.black : Colors.white,
           elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
-            onPressed: () => Navigator.pop(context),
-          ),
           title: Text(
             'Cài đặt',
             style: TextStyle(
@@ -93,14 +77,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProvider
               _buildSelectSetting(
                 title: 'Ngôn ngữ',
                 value: settingVm.language,
-                onTap: () => _showLanguageDialog(),
+                onTap: () => _showLanguageDialog(settingVm),
                 isDark: isDark,
               ),
 
               _buildSelectSetting(
                 title: 'Phông chữ',
                 value: settingVm.fontFamily,
-                onTap: () => _showFontDialog(),
+                onTap: () => _showFontDialog(settingVm),
                 isDark: isDark,
               ),
 
@@ -130,82 +114,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProvider
     );
   }
 
-  //
-  // Widget _buildThemeToggle(bool isDark) {
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: 20),
-  //     padding: const EdgeInsets.all(4),
-  //     decoration: BoxDecoration(
-  //       color: isDark ? Colors.grey[900] : Colors.grey[200],
-  //       borderRadius: BorderRadius.circular(25),
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         //themeMode.light
-  //         Expanded(
-  //           child: GestureDetector(
-  //             onTap: () {
-  //               context.read<SettingsViewModel>().setTheme(ThemeMode.light);
-  //             },
-  //             child: AnimatedContainer(
-  //               duration: const Duration(milliseconds: 200),
-  //               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-  //               decoration: BoxDecoration(
-  //                 color: !isDark ? Colors.white : Colors.transparent,
-  //                 borderRadius: BorderRadius.circular(20),
-  //                 boxShadow:
-  //                     !isDark
-  //                         ? [
-  //                           BoxShadow(
-  //                             color: Colors.black.withValues(alpha: 0.1),
-  //                             blurRadius: 4,
-  //                             offset: const Offset(0, 2),
-  //                           ),
-  //                         ]
-  //                         : null,
-  //               ),
-  //               child: Center(
-  //                 child: Text(
-  //                   ' Sáng',
-  //                   style: TextStyle(
-  //                     color: isDark ? Colors.black87 : Colors.grey[400],
-  //                     fontWeight: isDark ? FontWeight.w600 : FontWeight.normal,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //
-  //         //themeMode.dark
-  //         Expanded(
-  //           child: GestureDetector(
-  //             onTap: () {
-  //               context.read<SettingsViewModel>().setTheme(ThemeMode.dark);
-  //             },
-  //             child: AnimatedContainer(
-  //               duration: const Duration(milliseconds: 200),
-  //               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-  //               decoration: BoxDecoration(
-  //                 color: isDark ? Colors.grey[800] : Colors.transparent,
-  //                 borderRadius: BorderRadius.circular(20),
-  //               ),
-  //               child: Center(
-  //                 child: Text(
-  //                   'Tối',
-  //                   style: TextStyle(
-  //                     color: isDark ? Colors.white : Colors.grey[600],
-  //                     fontWeight: isDark ? FontWeight.w600 : FontWeight.normal,
-  //                   ),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildFontSizeSetting(double fontSize, bool isDark) {
     return Container(
@@ -327,36 +235,36 @@ class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProvider
     );
   }
 
-  void _showLanguageDialog() {
+  void _showLanguageDialog(SettingsState settingVm) {
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             backgroundColor:
-                ref.read(settingsProvider).themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
+                settingVm.themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
             title: Text(
               'Chọn ngôn ngữ',
               style: TextStyle(
-                color: ref.read(settingsProvider).themeMode == ThemeMode.dark ? Colors.white : Colors.black87,
+                color: settingVm.themeMode == ThemeMode.dark ? Colors.white : Colors.black87,
               ),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children:
-                  languages
+                  SettingsConstants.languages
                       .map(
                         (lang) => ListTile(
                           title: Text(
                             lang,
                             style: TextStyle(
                               color:
-                                  ref.read(settingsProvider).themeMode == ThemeMode.dark
+                                  settingVm.themeMode == ThemeMode.dark
                                       ? Colors.white
                                       : Colors.black87,
                             ),
                           ),
                           trailing:
-                              ref.read(settingsProvider).language == lang
+                              settingVm.language == lang
                                   ? const Icon(Icons.check, color: Colors.blue)
                                   : null,
                           onTap: () {
@@ -413,23 +321,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProvider
     );
   }
 
-  void _showFontDialog() {
+  void _showFontDialog(SettingsState settingVm) {
+
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             backgroundColor:
-                ref.read(settingsProvider).themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
+                settingVm.themeMode == ThemeMode.dark ? Colors.grey[900] : Colors.white,
             title: Text(
               'Chọn phông chữ',
               style: TextStyle(
-                color: ref.read(settingsProvider).themeMode == ThemeMode.dark ? Colors.white : Colors.black87,
+                color: settingVm.themeMode == ThemeMode.dark ? Colors.white : Colors.black87,
               ),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children:
-                  availableFonts
+                  SettingsConstants.availableFonts
                       .map(
                         (font) => ListTile(
                           title: Text(
@@ -437,13 +346,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProvider
                             style: TextStyle(
                               fontFamily: font,
                               color:
-                                  ref.read(settingsProvider).themeMode == ThemeMode.dark
+                                  settingVm.themeMode == ThemeMode.dark
                                       ? Colors.white
                                       : Colors.black87,
                             ),
                           ),
                           trailing:
-                              ref.read(settingsProvider).fontFamily == font
+                              settingVm.fontFamily == font
                                   ? const Icon(Icons.check, color: Colors.blue)
                                   : null,
                           onTap: () {
@@ -455,20 +364,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> with TickerProvider
                       .toList(),
             ),
           ),
-    );
-  }
-
-  ThemeData _buildDarkTheme() {
-    return ThemeData.dark().copyWith(
-      scaffoldBackgroundColor: Colors.black,
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.black, elevation: 0),
-    );
-  }
-
-  ThemeData _buildLightTheme() {
-    return ThemeData.light().copyWith(
-      scaffoldBackgroundColor: Colors.white,
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.white, elevation: 0),
     );
   }
 }

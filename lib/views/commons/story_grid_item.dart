@@ -149,7 +149,7 @@ class StoryGridItem extends ConsumerWidget {
 
                     // Chapter
                     Text(
-                      story.numberOfChapter.toString(),
+                      "Chương ${story.numberOfChapter}",
                       style: TextStyle(color: Colors.grey[300], fontSize: 9, height: 1.1),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

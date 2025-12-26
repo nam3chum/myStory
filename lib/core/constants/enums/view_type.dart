@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum ViewMode { list, grid1, grid2, grid3 }
+enum ViewType{ list, grid1, grid2, grid3 }
 
 String themeModeToText(ThemeMode mode) {
   switch (mode) {

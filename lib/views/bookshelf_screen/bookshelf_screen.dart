@@ -73,11 +73,12 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
         ),
       ),
       title: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.auto_stories, color: Colors.white, size: 28),
           SizedBox(width: 8),
           Text(
-            'Kệ sách của tôi',
+            'Kệ sách',
             style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
@@ -203,19 +204,19 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                   style: TextStyle(fontSize: 16, color: theme.textTheme.bodyMedium?.color, height: 1.5),
                 ),
                 SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context, true);
-                  },
-                  icon: Icon(Icons.add),
-                  label: Text('Thêm truyện mới'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.primaryColor,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
+                // ElevatedButton.icon(
+                //   onPressed: () {
+                //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                //   },
+                //   icon: Icon(Icons.add),
+                //   label: Text('Thêm truyện mới'),
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: theme.primaryColor,
+                //     foregroundColor: theme.colorScheme.onPrimary,
+                //     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                //   ),
+                // ),
               ],
             ),
           ),

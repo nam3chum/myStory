@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/views/story_detail_screen/story_detail_viewmodel.dart';
+import 'package:mystory/views/story_genre/genre_story_screen.dart';
 
 import '../../data/models/genre_model.dart';
 
@@ -17,19 +18,93 @@ class StoryDetailPage extends ConsumerStatefulWidget {
 class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  late final StoryDetailViewmodelNotifier vmRead;
+
+  void readStory() {}
+
+  void loadTableOfContents(BuildContext context) {
+   // StoryDetailMenu(menuItems: [],onSelected: (_){},);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                ),
+                const SizedBox(height: 20),
+                const Text('Mục lục', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                const Text('Tính năng đang được phát triển...'),
+                const SizedBox(height: 40),
+              ],
+            ),
+          ),
+    );
+  }
+
+  void _showOverlayMessage(
+    BuildContext context,
+    String message, {
+    Color backgroundColor = Colors.black87,
+    IconData icon = Icons.info,
+  }) {
+    final overlay = Overlay.of(context);
+
+    final entry = OverlayEntry(
+      builder:
+          (_) => Positioned(
+            bottom: 30,
+            left: 20,
+            right: 20,
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
+                ),
+                child: Row(
+                  children: [
+                    Icon(icon, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+                  ],
+                ),
+              ),
+            ),
+          ),
+    );
+
+    overlay.insert(entry);
+    Future.delayed(const Duration(seconds: 2), () => entry.remove());
+  }
 
   @override
   void initState() {
     super.initState();
+    vmRead = ref.read(storyDetailProvider(widget.id).notifier);
     _animationController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
     Future.microtask(() {
-      ref.read(storyDetailProvider(widget.id).notifier).fetchStory(widget.id);
-      ref.read(storyDetailProvider(widget.id).notifier).checkBookMarked(widget.id);
-      ref.read(storyDetailProvider(widget.id).notifier).loadGenres();
+      vmRead.fetchStory(widget.id);
+      vmRead.checkBookMarked(widget.id);
+      vmRead.loadGenres();
     });
     _animationController.forward();
   }
@@ -43,6 +118,11 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(storyDetailProvider(widget.id));
+    ref.listen(storyDetailProvider(widget.id), (previous, next) {
+      if (next.errorMessage.isNotEmpty && next.errorMessage != previous?.errorMessage) {
+        _showOverlayMessage(context, next.errorMessage);
+      }
+    });
     if (state.isLoading) {
       return Scaffold(
         backgroundColor: Colors.black,
@@ -99,9 +179,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
                       color: state.isBookmarked ? Colors.orange : Colors.white,
                     ),
                     onPressed: () async {
-                      await ref
-                          .read(storyDetailProvider(widget.id).notifier)
-                          .toggleBookmark(state.story, context);
+                      await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.story);
                     },
                   ),
                 ),
@@ -144,6 +222,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
                         ),
                       ),
                     ),
+                    //  _showMessage(state.errorMessage)
                   ],
                 ),
               ),
@@ -412,13 +491,13 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
                   child: InkWell(
                     borderRadius: BorderRadius.circular(20),
                     onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder:
-                      //         (context) => GenreStoryListScreen(genreId: genre.id, genreName: genre.name),
-                      //   ),
-                      // );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => GenreStoryListScreen(genreId: genre.id, genreName: genre.name),
+                        ),
+                      );
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -534,7 +613,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
                 icon: Icons.menu_book,
                 label: "Mục lục",
                 onTap: () {
-                  // Add table of contents navigation logic here
+                  loadTableOfContents(context);
                 },
                 isPrimary: false,
               ),
@@ -557,9 +636,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
                 icon: state.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                 label: "Kệ sách",
                 onTap: () async {
-                  await ref
-                      .read(storyDetailProvider(widget.id).notifier)
-                      .toggleBookmark(state.story, context);
+                  await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.story);
                 },
                 isPrimary: false,
               ),

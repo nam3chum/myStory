@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mystory/core/constants/text_styles/app_text_styles.dart';
 import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
 import '../../data/models/genre_model.dart';
 import '../../data/models/story_model.dart';
 
-class BuildEnhancedStoryItem extends ConsumerWidget {
+class StoryListItem extends ConsumerWidget {
   final Story story;
   final BuildContext context;
   final int index;
@@ -13,7 +14,7 @@ class BuildEnhancedStoryItem extends ConsumerWidget {
   final List<Genre> listGenre;
   final List<Color> gradientColors;
 
-  const BuildEnhancedStoryItem({
+  const StoryListItem({
     required this.story,
     required this.context,
     required this.index,
@@ -24,246 +25,118 @@ class BuildEnhancedStoryItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(settingsProvider).fontSize;
+    final fontSize = ref.watch(settingsProvider.select((value) => value.fontSize));
     final accentColor = gradientColors[index % gradientColors.length];
-    final double base = state / 16.0;
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Card(
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.white, accentColor.withValues(alpha: 0.02)],
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        child: InkWell(
+          child: Row(
+            children: [
+              // Hình ảnh truyện nhỏ gọn
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 80,
+                  height: 120,
+                  child: story.imgUrl.trim().isNotEmpty
+                      ? Image.network(
+                          story.imgUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: accentColor.withValues(alpha: 0.1),
+                              child: Icon(Icons.auto_stories, color: accentColor.withValues(alpha: 0.5)),
+                            );
+                          },
+                        )
+                      : Container(
+                          color: accentColor.withValues(alpha: 0.1),
+                          child: Icon(Icons.auto_stories, color: accentColor.withValues(alpha: 0.5)),
+                        ),
+                ),
               ),
-            ),
-            child: Row(
-              children: [
-                // Hình ảnh truyện với hiệu ứng
-                Container(
-                  width: 130 * base,
-                  height: 210 * base,
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                    ),
-                    boxShadow: [
-                      BoxShadow(color: accentColor.withAlpha(77), blurRadius: 10, offset: const Offset(2, 2)),
+              const SizedBox(width: 12),
+              // Nội dung truyện
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Tiêu đề
+                      Text(
+                        story.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.body(context: context, ref: ref, fontSize: fontSize),
+                      ),
+                      const SizedBox(height: 4),
+                      // Tác giả
+                      Row(
+                        children: [
+                          Icon(Icons.person_outline, size: 12, color: accentColor),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              story.author,
+                              style: TextStyle(
+                                fontSize: fontSize - 3,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      // Trạng thái + Số chương
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(story.status).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              story.status,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: _getStatusColor(story.status),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${story.numberOfChapter} chương',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                    ),
-                    child:
-                        story.imgUrl.trim().isNotEmpty
-                            ? Stack(
-                              children: [
-                                SizedBox(
-                                  width: 130 * base,
-                                  height: 210 * base,
-                                  child: Image.network(
-                                    story.imgUrl,
-                                    fit: BoxFit.cover,
-                                    width: 130 * base,
-                                    height: 210 * base,
-                                    alignment: Alignment.topCenter,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return _buildImagePlaceholder(accentColor, state);
-                                    },
-                                  ),
-                                ),
-                                Container(
-                                  width: 130,
-                                  height: 210,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [Colors.transparent, accentColor.withAlpha(25)],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                            : _buildImagePlaceholder(accentColor, state),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Thời gian cập nhật
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Text(
+                  'Vừa xong',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                 ),
-                // Nội dung truyện
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Tiêu đề
-                        Text(
-                          story.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: state.toDouble() + 2,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
-                            height: 1.3,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Tác giả
-                        Row(
-                          children: [
-                            Icon(Icons.person_outline, size: 16, color: accentColor),
-                            const SizedBox(width: 6),
-                            Expanded(
-                              child: Text(
-                                story.author,
-                                style: TextStyle(
-                                  fontSize: state.toDouble() - 2,
-                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-
-                        // Trạng thái
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(story.status).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: _getStatusColor(story.status).withValues(alpha: 0.3)),
-                          ),
-                          child: Text(
-                            story.status,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: _getStatusColor(story.status),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Số chương
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                color: accentColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(Icons.menu_book, size: 16, color: accentColor),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${story.numberOfChapter} chương',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-
-                        // Thể loại
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children:
-                                story.genreId.map((e) {
-                                  final genre = listGenre.firstWhere(
-                                    (g) => g.id == e.toString(),
-                                    orElse: () => Genre(id: e.toString(), name: 'Không rõ'),
-                                  );
-                                  final genreColor =
-                                      gradientColors[story.genreId.indexOf(e) % gradientColors.length];
-
-                                  return Container(
-                                    margin: const EdgeInsets.only(right: 8),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          genreColor.withValues(alpha: 0.1),
-                                          genreColor.withValues(alpha: 0.05),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: genreColor.withValues(alpha: 0.2)),
-                                    ),
-                                    child: Text(
-                                      genre.name,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: genreColor,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImagePlaceholder(Color color, double fontSize) {
-    final double base = fontSize / 12.0;
-    return Container(
-      width: 130 * base,
-      height: 210 * base,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [color.withAlpha(25), color.withAlpha(15)],
-        ),
-      ),
-      child: FittedBox(
-        fit: BoxFit.fill,
-        child: SizedBox(
-          width: 130,
-          height: 210,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.auto_stories, size: 40, color: color.withAlpha(150)),
-              const SizedBox(height: 8),
-              Text('Không có ảnh', style: TextStyle(fontSize: 12, color: color.withAlpha(180))),
+              ),
             ],
           ),
         ),

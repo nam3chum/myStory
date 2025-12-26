@@ -7,40 +7,55 @@ import '../../data/services/network/service_genre.dart';
 import '../../data/services/network/service_story.dart';
 
 class GenreStoryState {
-  List<Genre> listGenre = [];
-  List<Story> listStory = [];
-  bool isLoading = false;
+  final List<Genre> listGenre;
+  final List<Story> listStory;
+  final bool isLoading;
 
-  GenreStoryState copyWith({List<Genre>? listGenre, List<Story>? listStory, bool? isLoading}) {
-    final newState = GenreStoryState();
-    newState.listGenre = listGenre ?? this.listGenre;
-    newState.listStory = listStory ?? this.listStory;
-    newState.isLoading = isLoading ?? this.isLoading;
-    return newState;
+  const GenreStoryState({
+    this.listGenre = const [],
+    this.listStory = const [],
+    this.isLoading = false,
+  });
+
+  GenreStoryState copyWith({
+    List<Genre>? listGenre,
+    List<Story>? listStory,
+    bool? isLoading,
+  }) {
+    return GenreStoryState(
+      listGenre: listGenre ?? this.listGenre,
+      listStory: listStory ?? this.listStory,
+      isLoading: isLoading ?? this.isLoading,
+    );
   }
+
+  factory GenreStoryState.initial() => const GenreStoryState();
 }
 
 class GenreStoryViewModelNotifier extends Notifier<GenreStoryState> {
+  late final ApiGenreService _genreService;
+  late final ApiStoryService _storyService;
+
   @override
   GenreStoryState build() {
-    return GenreStoryState();
+    _genreService = getIt<ApiGenreService>();
+    _storyService = getIt<ApiStoryService>();
+    return GenreStoryState.initial();
   }
-
-  final ApiGenreService genreService;
-
-  final ApiStoryService storyService;
-
-  GenreStoryViewModelNotifier({required this.genreService, required this.storyService});
 
   Future<void> loadGenres() async {
-    final genres = await genreService.getGenres();
-    state = state.copyWith(listGenre: genres.cast<Genre>());
+    try {
+      final genres = await _genreService.getGenres();
+      state = state.copyWith(listGenre: genres.cast<Genre>());
+    } catch (e) {
+      // Keep current state if error occurs
+    }
   }
 
-  Future<void> loadStories() async {
+  Future<void> loadStories(String genreId) async {
     state = state.copyWith(isLoading: true);
     try {
-      List<Story> loadedStories = (await storyService.getStories()).cast<Story>();
+      List<Story> loadedStories = (await _storyService.getStories()).cast<Story>();
       state = state.copyWith(listStory: loadedStories, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false);
@@ -49,8 +64,5 @@ class GenreStoryViewModelNotifier extends Notifier<GenreStoryState> {
 }
 
 final genreStoryProvider = NotifierProvider<GenreStoryViewModelNotifier, GenreStoryState>(
-  () => GenreStoryViewModelNotifier(
-    genreService: getIt<ApiGenreService>(),
-    storyService: getIt<ApiStoryService>(),
-  ),
+  () => GenreStoryViewModelNotifier(),
 );

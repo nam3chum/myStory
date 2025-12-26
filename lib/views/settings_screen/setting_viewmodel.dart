@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/services/config/service_get_it.dart';
-import '../../data/services/pref/theme_preference.dart';
+import '../../data/services/pref/preference.dart';
 
 final settingsProvider = NotifierProvider<SettingsNotifier, SettingsState>(() => SettingsNotifier());
 
@@ -36,23 +36,45 @@ class SettingsState {
   );
 }
 
+// Constants - move to ViewModel
+class SettingsConstants {
+  static const List<String> availableFonts = [
+    'Roboto',
+    'Nunito',
+    'OpenSans',
+    'Lato',
+    'Poppins',
+    'Montserrat',
+    'Times New Roman',
+  ];
+
+  static const List<String> languages = ['Theo hệ thống', 'Tiếng Việt', 'English', '中文', '日本語'];
+}
+
 class SettingsNotifier extends Notifier<SettingsState> {
   late final ThemePreference _pref;
 
   @override
   SettingsState build() {
     _pref = getIt<ThemePreference>();
-    _init();
     return SettingsState.initial();
   }
 
-  Future<void> _init() async {
-    final theme = await _pref.getThemeMode();
-    final fontSize = await _pref.getFontSize();
-    final fontFamily = await _pref.getFontFamily();
-    final language = await _pref.getLanguage();
-
-    state = state.copyWith(themeMode: theme, fontSize: fontSize, fontFamily: fontFamily, language: language);
+  Future<void> init() async {
+    try {
+      final theme = await _pref.getThemeMode();
+      final fontSize = await _pref.getFontSize();
+      final fontFamily = await _pref.getFontFamily();
+      final language = await _pref.getLanguage();
+      state = SettingsState(
+        fontSize: fontSize,
+        fontFamily: fontFamily,
+        language: language,
+        themeMode: theme,
+      );
+    } catch (e) {
+      // Giữ state default nếu lỗi
+    }
   }
 
   Future<void> setFontSize(double value) async {
@@ -74,4 +96,18 @@ class SettingsNotifier extends Notifier<SettingsState> {
     await _pref.saveThemeMode(value);
     state = state.copyWith(themeMode: value);
   }
+
+  // Dialog/UI Utilities
+  static ThemeData buildLightTheme() {
+    return ThemeData.light();
+  }
+
+  static ThemeData buildDarkTheme() {
+    return ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: Colors.black,
+      appBarTheme: const AppBarTheme(backgroundColor: Colors.black, elevation: 0),
+    );
+  }
+
+  bool isDarkMode() => state.themeMode == ThemeMode.dark;
 }

@@ -26,12 +26,10 @@ class SkeletonListState extends State<SkeletonList> with TickerProviderStateMixi
   void initState() {
     super.initState();
     _animationController = AnimationController(duration: widget.animationDuration, vsync: this);
-
     _opacityAnimation = Tween<double>(
       begin: widget.minOpacity,
       end: widget.maxOpacity,
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
-
     _animationController.repeat(reverse: true);
   }
 
@@ -61,7 +59,6 @@ class SkeletonListState extends State<SkeletonList> with TickerProviderStateMixi
                   curve: Interval(delay, 1.0, curve: Curves.easeInOut),
                 ),
               );
-
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 child: Opacity(opacity: adjustedAnimation.value, child: _buildSkeletonItem(context, index)),
