@@ -1,964 +1,363 @@
-# 🏗️ Hướng dẫn MVVM + Truyen Crawler Services
+# 🏗️ Hướng dẫn sử dụng Truyen Crawler với kiến trúc MVVM
+
+Tài liệu này hướng dẫn cách tích hợp `TruyenFullService` vào một ứng dụng Flutter theo kiến trúc MVVM (Model-View-ViewModel) một cách chi tiết và chính xác.
 
 ## 📋 Mục lục
-1. [MVVM là gì?](#mvvm-là-gì)
-2. [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-3. [Các thành phần MVVM](#các-thành-phần-mvvm)
-4. [Ví dụ chi tiết từng layer](#ví-dụ-chi-tiết-từng-layer)
-5. [Workflow hoàn chỉnh](#workflow-hoàn-chỉnh)
-6. [Luồng dữ liệu](#luồng-dữ-liệu)
+1. [Tổng quan về MVVM](#tổng-quan-về-mvvm)
+2. [Cấu trúc thư mục đề xuất](#cấu-trúc-thư-mục-đề-xuất)
+3. [Các thành phần chi tiết](#các-thành-phần-chi-tiết)
+    - [Model](#1-model-sử-dụng-trực-tiếp-từ-service)
+    - [ViewModel](#2-viewmodel-bộ-não-xử-lý)
+    - [View](#3-view-lớp-giao-diện)
+4. [Luồng hoạt động hoàn chỉnh](#luồng-hoạt-động-hoàn-chỉnh)
 
 ---
 
-## MVVM là gì?
+## Tổng quan về MVVM
 
-**MVVM** = **Model - View - ViewModel** là một kiến trúc phổ biến trong Flutter.
+**MVVM** = **Model - View - ViewModel**.
 
 ```
 ┌─────────────────────────────────────────┐
 │              UI LAYER (View)            │
-│   - Widgets, UI elements, animations   │
+│   - Chỉ hiển thị UI và nhận input.     │
+│   - Lắng nghe thay đổi từ ViewModel.    │
 └─────────────────────┬───────────────────┘
-                      │
-                      ▼ (Communicate via notifyListeners)
+                      │ (Data Binding / ChangeNotifier)
+                      ▼
 ┌─────────────────────────────────────────┐
-│          BUSINESS LAYER (ViewModel)     │
-│  - State management, logic, processing │
+│        BUSINESS LAYER (ViewModel)       │
+│  - Giữ trạng thái (state) của View.     │
+│  - Xử lý logic nghiệp vụ.               │
 └─────────────────────┬───────────────────┘
-                      │
-                      ▼ (Call services)
+                      │ (Gọi hàm)
+                      ▼
 ┌─────────────────────────────────────────┐
-│           DATA LAYER (Model + Service)  │
-│   - API calls, database, business logic│
+│         DATA LAYER (Model + Service)    │
+│   - `TruyenFullService` gọi API.        │
+│   - `Model` định nghĩa cấu trúc dữ liệu. │
 └─────────────────────────────────────────┘
 ```
 
-### Quy trách vụ của mỗi layer:
-
-| Layer | Trách vụ | Ví dụ |
-|-------|----------|-------|
-| **View** | Hiển thị UI, nhận user input | Button, TextField, ListView |
-| **ViewModel** | Xử lý logic, quản lý state | Search novels, filter |
-| **Model** | Định nghĩa dữ liệu | Novel class, Chapter class |
-| **Service** | Gọi API, fetch dữ liệu | TruyenFullService |
-
 ---
 
-## Cấu trúc thư mục
+## Cấu trúc thư mục đề xuất
 
 ```
 lib/
 ├── main.dart
-├── models/                          ← Data models
-│   ├── novel_model.dart
-│   ├── chapter_model.dart
-│   └── response_model.dart
 │
-├── services/                        ← Services (gọi API)
-│   └── truyen_crawler/
-│       └── ... (đã có)
+├── services/
+│   └── truyen_crawler/     ← Service đã có sẵn
+│       ├── src/
+│       │   ├── models/     ← Các Model đã có sẵn (Story, Chapter, v.v.)
+│       │   └── services/   ← TruyenFullService đã có sẵn
+│       └── truyen_crawler.dart
 │
-├── view_models/                     ← ViewModels (MVVM)
-│   ├── novel_list_view_model.dart
-│   ├── novel_detail_view_model.dart
-│   ├── chapter_list_view_model.dart
-│   └── search_view_model.dart
+├── view_models/            ← Các ViewModel (cần tạo)
+│   ├── search_view_model.dart
+│   ├── story_detail_view_model.dart
+│   └── chapter_reader_view_model.dart
 │
-├── views/                           ← UI Pages/Widgets
-│   ├── home_screen.dart
-│   ├── search_screen.dart
-│   ├── novel_detail_screen.dart
-│   └── chapter_reader_screen.dart
-│
-└── utils/                           ← Utilities
-    ├── constants.dart
-    └── extensions.dart
+└── views/                  ← Các View (UI) (cần tạo)
+    ├── search/
+    │   ├── search_screen.dart
+    │   └── widgets/
+    │       └── story_list_tile.dart
+    ├── detail/
+    │   └── story_detail_screen.dart
+    └── reader/
+        └── chapter_reader_screen.dart
 ```
 
 ---
 
-## Các thành phần MVVM
+## Các thành phần chi tiết
 
-### 1. Model (Mô hình dữ liệu)
+### 1. Model (Sử dụng trực tiếp từ Service)
 
-#### novel_model.dart
+**Không cần tạo file Model mới!** `truyen_crawler` đã cung cấp sẵn các lớp dữ liệu bạn cần. Hãy sử dụng chúng trực tiếp để đảm bảo tính nhất quán.
+
+- **Các file model:** `lib/services/truyen_crawler/src/models/`
+- **Các lớp chính:** `Story`, `StoryDetail`, `Chapter`, `ChapterContent`, `Genre`.
+
+Chỉ cần import `truyen_crawler.dart` để sử dụng:
 ```dart
-class Novel {
-  final String id;
-  final String title;
-  final String author;
-  final String imageUrl;
-  final String description;
-  final String url;
-  final double rating;
-  
-  const Novel({
-    required this.id,
-    required this.title,
-    required this.author,
-    required this.imageUrl,
-    required this.description,
-    required this.url,
-    required this.rating,
-  });
-  
-  // Chuyển đổi từ dữ liệu API thành object
-  factory Novel.fromApi(dynamic data) {
-    return Novel(
-      id: data['id'] ?? '',
-      title: data['title'] ?? 'Unknown',
-      author: data['author'] ?? 'Unknown',
-      imageUrl: data['imageUrl'] ?? '',
-      description: data['description'] ?? '',
-      url: data['url'] ?? '',
-      rating: double.tryParse(data['rating'].toString()) ?? 0.0,
-    );
-  }
-}
-
-class Chapter {
-  final String id;
-  final String title;
-  final String url;
-  final DateTime? publishDate;
-  
-  const Chapter({
-    required this.id,
-    required this.title,
-    required this.url,
-    this.publishDate,
-  });
-}
+import '''package:my_story/services/truyen_crawler/truyen_crawler.dart''';
 ```
 
 ---
 
-### 2. ViewModel (Xử lý logic)
+### 2. ViewModel (Bộ não xử lý)
 
-#### search_view_model.dart
+ViewModel sẽ gọi `TruyenFullService`, quản lý trạng thái (loading, error, success) và cung cấp dữ liệu cho View. Chúng ta sẽ dùng `ChangeNotifier` để thông báo cho View khi có thay đổi.
+
+#### `search_view_model.dart`
 ```dart
-import 'package:flutter/material.dart';
-import 'package:mystory/services/truyen_crawler/src/services/services.dart';
-import 'package:mystory/models/novel_model.dart';
+import '''package:flutter/material.dart''';
+import '''package:my_story/services/truyen_crawler/truyen_crawler.dart''';
 
-/// ViewModel cho Search Screen
-/// Quản lý logic tìm kiếm truyện
+enum ViewState { idle, loading, success, error }
+
 class SearchViewModel extends ChangeNotifier {
-  // ===== SERVICES =====
-  final TruyenFullService _service = TruyenFullService();
-  
-  // ===== STATE VARIABLES =====
-  List<Novel> searchResults = [];
-  bool isLoading = false;
-  String? errorMessage;
-  String currentKeyword = '';
-  int currentPage = 1;
-  bool hasMoreResults = true;
-  
+  // ===== DEPENDENCIES =====
+  final TruyenFullService _truyenService = TruyenFullService();
+
+  // ===== STATE =====
+  ViewState _state = ViewState.idle;
+  ViewState get state => _state;
+
+  List<Story> _stories = [];
+  List<Story> get stories => _stories;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  String _currentKeyword = '';
+  int _currentPage = 1;
+  bool _hasMore = true;
+
   // ===== METHODS =====
-  
-  /// Tìm kiếm truyện theo từ khóa
-  /// 
-  /// Ví dụ:
-  /// ```
-  /// await viewModel.searchNovels('Kiếm Hiệp');
-  /// ```
-  Future<void> searchNovels(String keyword, {int page = 1}) async {
-    // 1. Kiểm tra input
-    if (keyword.trim().isEmpty) {
-      errorMessage = 'Vui lòng nhập từ khóa tìm kiếm';
-      notifyListeners();
-      return;
-    }
-    
-    // 2. Reset state khi tìm kiếm mới
-    if (page == 1) {
-      searchResults.clear();
-      currentPage = 1;
-    }
-    
-    // 3. Bắt đầu loading
-    isLoading = true;
-    errorMessage = null;
+
+  /// Tìm kiếm truyện theo từ khóa.
+  /// Gọi lần đầu hoặc khi người dùng refresh.
+  Future<void> search(String keyword) async {
+    if (keyword.trim().isEmpty) return;
+
+    _currentKeyword = keyword;
+    _currentPage = 1;
+    _stories = [];
+    _state = ViewState.loading;
     notifyListeners();
-    
-    try {
-      // 4. Gọi service để tìm kiếm
-      final response = await _service.searchNovels(
-        keyword,
-        page: page,
-      );
-      
-      // 5. Xử lý kết quả
-      if (response.success && response.data != null) {
-        // Cập nhật danh sách
-        final novels = response.data!.items ?? [];
-        
-        if (page == 1) {
-          searchResults = novels;
-        } else {
-          searchResults.addAll(novels);
-        }
-        
-        // Cập nhật pagination
-        currentKeyword = keyword;
-        currentPage = page;
-        hasMoreResults = response.data!.hasMore ?? false;
-        errorMessage = null;
-      } else {
-        // Xử lý lỗi
-        errorMessage = response.message ?? 'Tìm kiếm thất bại';
-      }
-    } catch (e) {
-      errorMessage = 'Lỗi: ${e.toString()}';
-    } finally {
-      // 6. Kết thúc loading
-      isLoading = false;
-      notifyListeners();
+
+    final response = await _truyenService.searchStories(keyword, page: _currentPage);
+
+    if (response.success && response.data != null) {
+      _stories = response.data!.items;
+      _hasMore = response.data!.hasMore;
+      _state = ViewState.success;
+    } else {
+      _errorMessage = response.message ?? 'Lỗi không xác định';
+      _state = ViewState.error;
     }
+    notifyListeners();
   }
-  
-  /// Tải thêm kết quả (phân trang)
+
+  /// Tải thêm kết quả cho phân trang.
   Future<void> loadMore() async {
-    if (!hasMoreResults || isLoading) return;
-    
-    await searchNovels(currentKeyword, page: currentPage + 1);
-  }
-  
-  /// Xóa kết quả tìm kiếm
-  void clearSearch() {
-    searchResults.clear();
-    currentKeyword = '';
-    currentPage = 1;
-    errorMessage = null;
+    if (_state == ViewState.loading || !_hasMore) return;
+
+    _currentPage++;
+    final response = await _truyenService.searchStories(_currentKeyword, page: _currentPage);
+
+    if (response.success && response.data != null) {
+      _stories.addAll(response.data!.items);
+      _hasMore = response.data!.hasMore;
+    }
+    // Không thay đổi state để tránh UI nhảy về loading
     notifyListeners();
-  }
-  
-  /// Cleanup
-  @override
-  void dispose() {
-    _service.dispose();
-    super.dispose();
   }
 }
 ```
 
----
-
-#### novel_detail_view_model.dart
+#### `story_detail_view_model.dart`
 ```dart
-import 'package:flutter/material.dart';
-import 'package:mystory/services/truyen_crawler/src/services/services.dart';
-import 'package:mystory/models/novel_model.dart';
+import '''package:flutter/material.dart''';
+import '''package:my_story/services/truyen_crawler/truyen_crawler.dart''';
 
-/// ViewModel cho Novel Detail Screen
-class NovelDetailViewModel extends ChangeNotifier {
-  final TruyenFullService _service = TruyenFullService();
-  
-  // ===== STATE =====
-  bool isLoading = false;
-  String? errorMessage;
-  Map<String, dynamic>? novelDetail;
-  List<Chapter> chapters = [];
-  
-  // ===== GETTERS =====
-  bool get hasDetail => novelDetail != null;
-  bool get hasChapters => chapters.isNotEmpty;
-  
-  // ===== METHODS =====
-  
-  /// Lấy chi tiết truyện
-  /// 
-  /// Gọi khi người dùng vào xem chi tiết truyện
-  Future<void> loadNovelDetail(String novelUrl) async {
-    isLoading = true;
-    errorMessage = null;
+enum DetailViewState { loading, success, error }
+
+class StoryDetailViewModel extends ChangeNotifier {
+  final TruyenFullService _truyenService = TruyenFullService();
+
+  DetailViewState _state = DetailViewState.loading;
+  DetailViewState get state => _state;
+
+  StoryDetail? _storyDetail;
+  StoryDetail? get storyDetail => _storyDetail;
+
+  List<Chapter> _chapters = [];
+  List<Chapter> get chapters => _chapters;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  /// Tải chi tiết truyện và danh sách chương.
+  Future<void> loadStoryDetail(String storyUrl) async {
+    _state = DetailViewState.loading;
     notifyListeners();
-    
+
     try {
-      // Lấy chi tiết
-      final detailResponse = await _service.getNovelDetail(novelUrl);
-      
-      if (detailResponse.success) {
-        novelDetail = detailResponse.data;
+      // Chạy song song 2 request để tăng tốc
+      final responses = await Future.wait([
+        _truyenService.getStoryDetail(storyUrl),
+        _truyenService.getChapterList(storyUrl),
+      ]);
+
+      final detailResponse = responses[0] as ApiResponse<StoryDetail>;
+      final chapterResponse = responses[1] as ApiResponse<List<Chapter>>;
+
+      // Xử lý detail
+      if (detailResponse.success && detailResponse.data != null) {
+        _storyDetail = detailResponse.data;
       } else {
-        errorMessage = detailResponse.message ?? 'Không thể tải chi tiết';
+        throw Exception(detailResponse.message ?? 'Không thể tải chi tiết truyện');
       }
-      
-      // Lấy danh sách chương
-      await loadChapters(novelUrl);
-    } catch (e) {
-      errorMessage = 'Lỗi: $e';
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
-  
-  /// Lấy danh sách chương
-  Future<void> loadChapters(String novelUrl) async {
-    try {
-      final response = await _service.getChapterList(novelUrl);
-      
-      if (response.success) {
-        chapters = response.data ?? [];
+
+      // Xử lý chapters
+      if (chapterResponse.success && chapterResponse.data != null) {
+        _chapters = chapterResponse.data!;
       }
+      // (Nếu lỗi tải chapter có thể không cần báo lỗi cả màn hình)
+
+      _state = DetailViewState.success;
     } catch (e) {
-      print('Lỗi tải chương: $e');
+      _errorMessage = e.toString();
+      _state = DetailViewState.error;
     }
-  }
-  
-  @override
-  void dispose() {
-    _service.dispose();
-    super.dispose();
+    notifyListeners();
   }
 }
 ```
 
----
-
-#### chapter_reader_view_model.dart
+#### `chapter_reader_view_model.dart`
 ```dart
-import 'package:flutter/material.dart';
-import 'package:mystory/services/truyen_crawler/src/services/services.dart';
+import '''package:flutter/material.dart''';
+import '''package:my_story/services/truyen_crawler/truyen_crawler.dart''';
 
-/// ViewModel cho Chapter Reader Screen
+enum ReaderViewState { loading, success, error }
+
 class ChapterReaderViewModel extends ChangeNotifier {
-  final TruyenFullService _service = TruyenFullService();
+  final TruyenFullService _truyenService = TruyenFullService();
+
+  ReaderViewState _state = ReaderViewState.loading;
+  ReaderViewState get state => _state;
+
+  ChapterContent? _chapterContent;
+  ChapterContent? get chapterContent => _chapterContent;
   
-  // ===== STATE =====
-  String chapterTitle = '';
-  String chapterContent = '';
-  bool isLoading = false;
-  String? errorMessage;
-  
-  // ===== METHODS =====
-  
-  /// Tải nội dung chương
-  Future<void> loadChapterContent(String chapterUrl, String chapterName) async {
-    isLoading = true;
-    errorMessage = null;
-    chapterTitle = chapterName;
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  Future<void> loadContent(String chapterUrl, String chapterName) async {
+    _state = ReaderViewState.loading;
     notifyListeners();
-    
-    try {
-      final response = await _service.getChapterContent(
-        chapterUrl,
-        chapterName,
-      );
-      
-      if (response.success) {
-        chapterContent = response.data?.content ?? '';
-      } else {
-        errorMessage = response.message ?? 'Không thể tải chương';
-      }
-    } catch (e) {
-      errorMessage = 'Lỗi: $e';
-    } finally {
-      isLoading = false;
-      notifyListeners();
+
+    final response = await _truyenService.getChapterContent(chapterUrl, chapterName);
+
+    if (response.success && response.data != null) {
+      _chapterContent = response.data;
+      _state = ReaderViewState.success;
+    } else {
+      _errorMessage = response.message ?? 'Không thể tải nội dung chương';
+      _state = ReaderViewState.error;
+    }
+    notifyListeners();
+  }
+}
+```
+
+---
+
+### 3. View (Lớp giao diện)
+
+View chỉ có nhiệm vụ hiển thị dữ liệu từ ViewModel và gọi các hàm của ViewModel khi người dùng tương tác. Sử dụng `Consumer` hoặc `context.watch` để lắng nghe thay đổi.
+
+#### `search_screen.dart`
+```dart
+import '''package:flutter/material.dart''';
+import '''package:my_story/view_models/search_view_model.dart''';
+import '''package:provider/provider.dart''';
+
+class SearchScreen extends StatelessWidget {
+  const SearchScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Dùng ChangeNotifierProvider để cung cấp ViewModel cho cây widget
+    return ChangeNotifierProvider(
+      create: (_) => SearchViewModel(),
+      child: const _SearchScreenContent(),
+    );
+  }
+}
+
+class _SearchScreenContent extends StatelessWidget {
+  const _SearchScreenContent();
+
+  @override
+  Widget build(BuildContext context) {
+    // context.watch sẽ khiến widget này build lại khi viewModel.notifyListeners() được gọi
+    final viewModel = context.watch<SearchViewModel>();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Tìm kiếm')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Nhập tên truyện...',
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (keyword) {
+                // Chỉ gọi hàm, không xử lý logic ở View
+                context.read<SearchViewModel>().search(keyword);
+              },
+            ),
+          ),
+          Expanded(child: _buildBody(context, viewModel)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, SearchViewModel viewModel) {
+    switch (viewModel.state) {
+      case ViewState.loading:
+        return const Center(child: CircularProgressIndicator());
+      case ViewState.error:
+        return Center(child: Text(viewModel.errorMessage!));
+      case ViewState.success:
+        if (viewModel.stories.isEmpty) {
+          return const Center(child: Text('Không tìm thấy kết quả nào.'));
+        }
+        return ListView.builder(
+          itemCount: viewModel.stories.length,
+          itemBuilder: (context, index) {
+            final story = viewModel.stories[index];
+            return ListTile(
+              leading: story.cover != null
+                  ? Image.network(story.cover!, width: 50, fit: BoxFit.cover)
+                  : const Icon(Icons.book_online),
+              title: Text(story.name),
+              subtitle: Text(story.description, maxLines: 2),
+              onTap: () {
+                // TODO: Điều hướng sang màn hình chi tiết
+                // Navigator.push(context, MaterialPageRoute(builder: (_) => StoryDetailScreen(storyUrl: story.link)));
+              },
+            );
+          },
+        );
+      case ViewState.idle:
+      default:
+        return const Center(child: Text('Nhập từ khóa để tìm truyện.'));
     }
   }
-  
-  @override
-  void dispose() {
-    _service.dispose();
-    super.dispose();
-  }
 }
 ```
 
 ---
 
-### 3. View (UI Layer)
+## Luồng hoạt động hoàn chỉnh (Ví dụ Tìm kiếm)
 
-#### search_screen.dart
-```dart
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mystory/view_models/search_view_model.dart';
-
-class SearchScreen extends StatefulWidget {
-  @override
-  _SearchScreenState createState() => _SearchScreenState();
-}
-
-class _SearchScreenState extends State<SearchScreen> {
-  final _searchController = TextEditingController();
-  
-  @override
-  void initState() {
-    super.initState();
-    // Khởi tạo ViewModel
-    // (Hoặc sử dụng Provider.of())
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Tìm kiếm')),
-      body: Consumer<SearchViewModel>(
-        builder: (context, viewModel, _) {
-          return Column(
-            children: [
-              // ===== SEARCH BAR =====
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Nhập tên truyện...',
-                    border: OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: () {
-                        // Gọi tìm kiếm từ ViewModel
-                        viewModel.searchNovels(_searchController.text);
-                      },
-                    ),
-                  ),
-                ),
-              ),
-              
-              // ===== ERROR MESSAGE =====
-              if (viewModel.errorMessage != null)
-                Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    viewModel.errorMessage!,
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
-              
-              // ===== LOADING INDICATOR =====
-              if (viewModel.isLoading)
-                Center(
-                  child: CircularProgressIndicator(),
-                ),
-              
-              // ===== RESULTS LIST =====
-              if (!viewModel.isLoading && viewModel.searchResults.isNotEmpty)
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: viewModel.searchResults.length,
-                    itemBuilder: (context, index) {
-                      final novel = viewModel.searchResults[index];
-                      return NovelTile(novel: novel);
-                    },
-                  ),
-                ),
-              
-              // ===== EMPTY STATE =====
-              if (!viewModel.isLoading && viewModel.searchResults.isEmpty)
-                Center(
-                  child: Text('Hãy tìm kiếm truyện yêu thích của bạn'),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-  
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-}
-
-class NovelTile extends StatelessWidget {
-  final dynamic novel;
-  
-  const NovelTile({required this.novel});
-  
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(novel.title),
-      subtitle: Text(novel.author),
-      onTap: () {
-        // Điều hướng sang chi tiết
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => NovelDetailScreen(novelUrl: novel.url),
-          ),
-        );
-      },
-    );
-  }
-}
-```
-
----
-
-#### novel_detail_screen.dart
-```dart
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mystory/view_models/novel_detail_view_model.dart';
-
-class NovelDetailScreen extends StatefulWidget {
-  final String novelUrl;
-  
-  const NovelDetailScreen({required this.novelUrl});
-  
-  @override
-  _NovelDetailScreenState createState() => _NovelDetailScreenState();
-}
-
-class _NovelDetailScreenState extends State<NovelDetailScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Gọi loadNovelDetail khi screen khởi tạo
-    Future.microtask(() {
-      final viewModel = context.read<NovelDetailViewModel>();
-      viewModel.loadNovelDetail(widget.novelUrl);
-    });
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Chi tiết truyện')),
-      body: Consumer<NovelDetailViewModel>(
-        builder: (context, viewModel, _) {
-          // ===== LOADING =====
-          if (viewModel.isLoading) {
-            return Center(child: CircularProgressIndicator());
-          }
-          
-          // ===== ERROR =====
-          if (viewModel.errorMessage != null) {
-            return Center(
-              child: Text('Lỗi: ${viewModel.errorMessage}'),
-            );
-          }
-          
-          // ===== CONTENT =====
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Chi tiết truyện
-                if (viewModel.hasDetail)
-                  _buildDetailSection(viewModel.novelDetail!),
-                
-                SizedBox(height: 20),
-                
-                // Danh sách chương
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
-                    'Danh sách chương (${viewModel.chapters.length})',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                
-                if (viewModel.hasChapters)
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: viewModel.chapters.length,
-                    itemBuilder: (context, index) {
-                      final chapter = viewModel.chapters[index];
-                      return ListTile(
-                        title: Text(chapter.title),
-                        onTap: () {
-                          // Đi đến đọc chương
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChapterReaderScreen(
-                                chapterUrl: chapter.url,
-                                chapterTitle: chapter.title,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-  
-  Widget _buildDetailSection(Map<String, dynamic> detail) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            detail['title'] ?? 'Unknown',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 8),
-          Text('Tác giả: ${detail['author'] ?? 'Unknown'}'),
-          Text('Rating: ${detail['rating'] ?? 'N/A'}/5'),
-          SizedBox(height: 16),
-          Text(
-            detail['description'] ?? '',
-            maxLines: 5,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
-
----
-
-#### chapter_reader_screen.dart
-```dart
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mystory/view_models/chapter_reader_view_model.dart';
-
-class ChapterReaderScreen extends StatefulWidget {
-  final String chapterUrl;
-  final String chapterTitle;
-  
-  const ChapterReaderScreen({
-    required this.chapterUrl,
-    required this.chapterTitle,
-  });
-  
-  @override
-  _ChapterReaderScreenState createState() => _ChapterReaderScreenState();
-}
-
-class _ChapterReaderScreenState extends State<ChapterReaderScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // Tải nội dung chương
-    Future.microtask(() {
-      final viewModel = context.read<ChapterReaderViewModel>();
-      viewModel.loadChapterContent(widget.chapterUrl, widget.chapterTitle);
-    });
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Đang đọc'),
-      ),
-      body: Consumer<ChapterReaderViewModel>(
-        builder: (context, viewModel, _) {
-          // ===== LOADING =====
-          if (viewModel.isLoading) {
-            return Center(child: CircularProgressIndicator());
-          }
-          
-          // ===== ERROR =====
-          if (viewModel.errorMessage != null) {
-            return Center(
-              child: Text('Lỗi: ${viewModel.errorMessage}'),
-            );
-          }
-          
-          // ===== CONTENT =====
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Tiêu đề chương
-                Text(
-                  viewModel.chapterTitle,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                
-                SizedBox(height: 20),
-                
-                // Nội dung chương
-                Text(
-                  viewModel.chapterContent,
-                  style: TextStyle(
-                    fontSize: 16,
-                    height: 1.8,
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-```
-
----
-
-## Workflow hoàn chỉnh
-
-### Quy trình thực thi:
-
-```
-1. USER INTERACTION
-   ↓ Người dùng nhập "Kiếm Hiệp" và nhấn tìm kiếm
-   
-2. VIEW (SearchScreen)
-   ↓ Gọi: viewModel.searchNovels('Kiếm Hiệp')
-   
-3. VIEWMODEL (SearchViewModel)
-   ↓ Xử lý logic:
-   - Validate input
-   - Set isLoading = true
-   - notifyListeners() → UI cập nhật (hiện loading)
-   
-4. SERVICE (TruyenFullService)
-   ↓ Thực hiện HTTP request
-   - Gọi API tìm kiếm
-   - Parse HTML
-   - Trả về ApiResponse
-   
-5. VIEWMODEL (tiếp tục)
-   ↓ Xử lý kết quả:
-   - Kiểm tra response.success
-   - Cập nhật searchResults
-   - Set isLoading = false
-   - notifyListeners() → UI cập nhật (hiện kết quả)
-   
-6. VIEW (cập nhật lại)
-   ↓ Consumer rebuild
-   - Hiện danh sách truyện
-   - Người dùng có thể bấm vào chi tiết
-```
-
----
-
-## Luồng dữ liệu
-
-### Ví dụ: Tìm kiếm → Chi tiết → Đọc chương
-
-```
-┌──────────────────────────────────────────────┐
-│        SearchScreen (View Layer)             │
-│  - TextField để nhập từ khóa                 │
-│  - Button "Tìm kiếm"                         │
-│  - Hiển thị danh sách kết quả                │
-└────────────────┬─────────────────────────────┘
-                 │
-     (Bấm tìm kiếm)
-                 │
-                 ▼
-┌──────────────────────────────────────────────┐
-│     SearchViewModel (ViewModel Layer)        │
-│  - searchNovels(keyword)                     │
-│  - Kiểm tra input, set loading               │
-│  - Gọi service                               │
-│  - Xử lý kết quả, notify UI                  │
-└────────────────┬─────────────────────────────┘
-                 │
-          (Gọi service)
-                 │
-                 ▼
-┌──────────────────────────────────────────────┐
-│    TruyenFullService (Service Layer)         │
-│  - searchNovels(keyword)                     │
-│  - Gọi API                                   │
-│  - Parse dữ liệu                             │
-│  - Trả về ApiResponse<ListResponse<Novel>>   │
-└────────────────┬─────────────────────────────┘
-                 │
-        (Kết quả trả về)
-                 │
-                 ▼
-     ┌─────────────────────┐
-     │  Novel List Result  │ ← Hiển thị trên UI
-     └─────────────────────┘
-            │
-    (Người dùng bấm 1 truyện)
-            │
-            ▼
-┌──────────────────────────────────────────────┐
-│   NovelDetailScreen (View Layer)             │
-│  - Hiển thị chi tiết truyện                  │
-│  - Danh sách chương                          │
-└────────────────┬─────────────────────────────┘
-                 │
-    (LoadChapterList on init)
-                 │
-                 ▼
-┌──────────────────────────────────────────────┐
-│   NovelDetailViewModel (ViewModel Layer)     │
-│  - loadNovelDetail(novelUrl)                 │
-│  - loadChapters(novelUrl)                    │
-└────────────────┬─────────────────────────────┘
-                 │
-          (Gọi service)
-                 │
-                 ▼
-┌──────────────────────────────────────────────┐
-│    TruyenFullService (Service Layer)         │
-│  - getNovelDetail(novelUrl)                  │
-│  - getChapterList(novelUrl)                  │
-└────────────────┬─────────────────────────────┘
-                 │
-        (Kết quả trả về)
-                 │
-                 ▼
-     ┌───────────────────────┐
-     │  Novel Detail + List  │ ← Hiển thị trên UI
-     └───────────────────────┘
-            │
-    (Người dùng bấm 1 chương)
-            │
-            ▼
-┌──────────────────────────────────────────────┐
-│   ChapterReaderScreen (View Layer)           │
-│  - Hiển thị nội dung chương                  │
-└────────────────┬─────────────────────────────┘
-                 │
-    (LoadChapterContent on init)
-                 │
-                 ▼
-┌──────────────────────────────────────────────┐
-│ ChapterReaderViewModel (ViewModel Layer)     │
-│  - loadChapterContent(chapterUrl, name)      │
-└────────────────┬─────────────────────────────┘
-                 │
-          (Gọi service)
-                 │
-                 ▼
-┌──────────────────────────────────────────────┐
-│    TruyenFullService (Service Layer)         │
-│  - getChapterContent(chapterUrl, name)       │
-└────────────────┬─────────────────────────────┘
-                 │
-        (Kết quả trả về)
-                 │
-                 ▼
-     ┌───────────────────────┐
-     │    Chapter Content    │ ← Hiển thị trên UI
-     └───────────────────────┘
-```
-
----
-
-## Cách thiết lập Provider
-
-### main.dart
-```dart
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:mystory/view_models/search_view_model.dart';
-import 'package:mystory/view_models/novel_detail_view_model.dart';
-import 'package:mystory/view_models/chapter_reader_view_model.dart';
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Story',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: MultiProvider(
-        // Khởi tạo tất cả ViewModel
-        providers: [
-          // Tìm kiếm
-          ChangeNotifierProvider(
-            create: (_) => SearchViewModel(),
-          ),
-          
-          // Chi tiết truyện
-          ChangeNotifierProvider(
-            create: (_) => NovelDetailViewModel(),
-          ),
-          
-          // Đọc chương
-          ChangeNotifierProvider(
-            create: (_) => ChapterReaderViewModel(),
-          ),
-        ],
-        child: HomeScreen(),
-      ),
-    );
-  }
-}
-```
-
----
-
-## Tóm tắt MVVM Pattern
-
-### ✅ Lợi ích
-
-1. **Tách biệt trách vụ** - Mỗi layer có trách vụ riêng
-2. **Dễ test** - Có thể test ViewModel độc lập
-3. **Dễ bảo trì** - Thay đổi UI không ảnh hưởng logic
-4. **Tái sử dụng** - Một ViewModel có thể dùng cho nhiều View
-5. **Quản lý state** - ViewModel đảm nhiệm tất cả state
-
-### ⚠️ Quy tắc quan trọng
-
-| ❌ KHÔNG LÀM | ✅ NÊN LÀM |
-|----------|----------|
-| Gọi API trực tiếp từ View | Gọi API từ ViewModel |
-| Lưu state ở View | Lưu state ở ViewModel |
-| Mix logic ở View | Logic ở ViewModel, UI ở View |
-| Gọi service nhiều lần | Gọi 1 lần ở ViewModel |
-
-### 📊 Quan hệ giữa các thành phần
-
-```
-┌─────────────────────────────────────┐
-│          View (UI)                  │  ← Hiển thị & nhận input
-│   SearchScreen, DetailScreen        │
-│   (Consumer<ViewModel>)             │
-└──────────────┬──────────────────────┘
-               │ notifyListeners()
-               │ (Rebuilt UI)
-               │
-┌──────────────▼──────────────────────┐
-│       ViewModel (Logic)             │  ← Xử lý logic & state
-│   SearchViewModel, DetailViewModel  │
-│   (extends ChangeNotifier)          │
-└──────────────┬──────────────────────┘
-               │ await service.method()
-               │
-┌──────────────▼──────────────────────┐
-│    Service (Data & API)             │  ← Lấy dữ liệu từ API
-│   TruyenFullService                 │
-│   (HTTP requests & parsing)         │
-└─────────────────────────────────────┘
-```
-
----
-
-## Checklist Implementasi
-
-- [ ] Tạo Model classes (Novel, Chapter, etc.)
-- [ ] Tạo ViewModels (SearchViewModel, DetailViewModel, etc.)
-- [ ] Tạo UI Screens (SearchScreen, DetailScreen, etc.)
-- [ ] Setup Provider đúng cách
-- [ ] Gọi loadData() ở initState hoặc sử dụng Future.microtask()
-- [ ] Kiểm tra state (isLoading, errorMessage) trước khi hiển thị
-- [ ] Cleanup resources ở dispose()
-- [ ] Test lại toàn bộ flow
-
----
-
-**Happy coding! 🚀 MVVM sẽ giúp code của bạn clean và dễ bảo trì hơn rất nhiều!**
+1.  **Người dùng** mở `SearchScreen`.
+2.  `ChangeNotifierProvider` tạo một instance của `SearchViewModel`. `SearchScreen` hiển thị trạng thái `idle`.
+3.  **Người dùng** nhập "thôn phệ" và nhấn Enter.
+4.  `TextField`'s `onSubmitted` được kích hoạt. Nó gọi `context.read<SearchViewModel>().search('thôn phệ')`.
+5.  **ViewModel** nhận lệnh, đổi `state` thành `loading` và gọi `notifyListeners()`.
+6.  **View** (`_SearchScreenContent`) build lại vì `context.watch` nhận được thay đổi. Nó thấy `state` là `loading` và hiển thị `CircularProgressIndicator`.
+7.  **ViewModel** thực thi `_truyenService.searchStories(...)`.
+8.  Sau khi `_truyenService` trả về kết quả, **ViewModel** cập nhật `_stories` và `_state` thành `success` (hoặc `error`). Nó gọi `notifyListeners()` một lần nữa.
+9.  **View** lại build lại. Lần này nó thấy `state` là `success` và hiển thị `ListView` với danh sách truyện đã lấy được.

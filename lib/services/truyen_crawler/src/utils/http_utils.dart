@@ -8,19 +8,20 @@ class DioClientWrapper {
   final Dio _dio;
 
   DioClientWrapper({Dio? dio})
-      : _dio = dio ??
-            Dio(
-              BaseOptions(
-                baseUrl: TruyenFullConfig.BASE_URL,
-                connectTimeout:
-                    Duration(seconds: TruyenFullConfig.TIMEOUT_SECONDS),
-                receiveTimeout:
-                    Duration(seconds: TruyenFullConfig.TIMEOUT_SECONDS),
-                headers: {
-                  'User-Agent': TruyenFullConfig.USER_AGENT,
-                },
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              baseUrl: TruyenFullConfig.BASE_URL,
+              connectTimeout: Duration(
+                seconds: TruyenFullConfig.TIMEOUT_SECONDS,
               ),
-            );
+              receiveTimeout: Duration(
+                seconds: TruyenFullConfig.TIMEOUT_SECONDS,
+              ),
+              headers: {'User-Agent': TruyenFullConfig.USER_AGENT},
+            ),
+          );
 
   /// Fetch with retry logic
   Future<Response> fetchWithRetry(String url) async {
