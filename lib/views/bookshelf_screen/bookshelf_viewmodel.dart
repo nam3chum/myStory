@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/data/database/database_controller.dart';
 
@@ -15,7 +16,9 @@ class Bookshelf {
   Bookshelf({required this.isLoading, required this.listStory});
 
   Bookshelf copyWith({bool? isLoading, List<Story>? listStory}) {
-    return Bookshelf(isLoading: isLoading ?? this.isLoading, listStory: listStory ?? this.listStory);
+    return Bookshelf(
+        isLoading: isLoading ?? this.isLoading,
+        listStory: listStory ?? this.listStory);
   }
 
   factory Bookshelf.initial() => Bookshelf(isLoading: false, listStory: []);
@@ -37,7 +40,9 @@ class BookshelfNotifier extends Notifier<Bookshelf> {
       final stories = storiesData.map((data) => data).toList();
       state = state.copyWith(listStory: stories);
     } on DioException catch (e) {
-      print("Error loading stories: $e");
+      if (kDebugMode) {
+        print("Error loading stories: $e");
+      }
     } finally {
       state = state.copyWith(isLoading: false);
     }

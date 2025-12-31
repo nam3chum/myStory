@@ -12,18 +12,21 @@ class BookshelfScreen extends ConsumerStatefulWidget {
   ConsumerState<BookshelfScreen> createState() => _BookshelfScreenState();
 }
 
-class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerProviderStateMixin {
+class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
+    with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(duration: Duration(milliseconds: 300), vsync: this);
+    _fadeController = AnimationController(
+        duration: const Duration(milliseconds: 300), vsync: this);
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut));
+    ).animate(
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut));
     Future.microtask(() {
       ref.read(bookshelfProvider.notifier).loadStories();
     });
@@ -48,10 +51,9 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors:
-                isDark
-                    ? [theme.scaffoldBackgroundColor, theme.cardColor]
-                    : [Colors.purple[50]!, Colors.white],
+            colors: isDark
+                ? [theme.scaffoldBackgroundColor, theme.cardColor]
+                : [Colors.purple[50]!, Colors.white],
           ),
         ),
         child: _buildBody(context),
@@ -72,14 +74,15 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
           ),
         ),
       ),
-      title: Row(
+      title: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.auto_stories, color: Colors.white, size: 28),
           SizedBox(width: 8),
           Text(
             'Kệ sách',
-            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -103,7 +106,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
         children: [
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               itemCount: vm.listStory.length,
               itemBuilder: (context, index) {
                 return _buildStoryCard(context, index);
@@ -123,7 +126,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: theme.cardColor,
               borderRadius: BorderRadius.circular(20),
@@ -131,7 +134,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                 BoxShadow(
                   color: theme.shadowColor.withValues(alpha: 0.1),
                   blurRadius: 20,
-                  offset: Offset(0, 10),
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
@@ -141,7 +144,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                   valueColor: AlwaysStoppedAnimation<Color>(theme.primaryColor),
                   strokeWidth: 3,
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Text(
                   'Đang tải dữ liệu...',
                   style: TextStyle(
@@ -166,7 +169,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(32),
+            padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
               color: theme.cardColor,
               borderRadius: BorderRadius.circular(24),
@@ -174,21 +177,22 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                 BoxShadow(
                   color: theme.shadowColor.withValues(alpha: 0.1),
                   blurRadius: 20,
-                  offset: Offset(0, 10),
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
             child: Column(
               children: [
                 Container(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: theme.primaryColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.auto_stories_outlined, size: 64, color: theme.primaryColor),
+                  child: Icon(Icons.auto_stories_outlined,
+                      size: 64, color: theme.primaryColor),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Text(
                   'Chưa có truyện nào',
                   style: TextStyle(
@@ -197,13 +201,16 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                     color: theme.textTheme.headlineSmall?.color,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Kệ chưa có truyện, hãy thêm truyện mới\nđể bắt đầu hành trình khám phá!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyMedium?.color, height: 1.5),
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: theme.textTheme.bodyMedium?.color,
+                      height: 1.5),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 // ElevatedButton.icon(
                 //   onPressed: () {
                 //     Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
@@ -231,12 +238,15 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
     final theme = Theme.of(context);
 
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: theme.shadowColor.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, 5)),
+          BoxShadow(
+              color: theme.shadowColor.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5)),
         ],
       ),
       child: Material(
@@ -246,12 +256,13 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
           onTap: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => StoryDetailPage(id: story.id)),
+              MaterialPageRoute(
+                  builder: (context) => StoryDetailPage(id: story.id)),
             );
             ref.read(bookshelfProvider.notifier).loadStories();
           },
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -266,7 +277,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                         BoxShadow(
                           color: theme.shadowColor.withValues(alpha: 0.1),
                           blurRadius: 8,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -278,14 +289,15 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: theme.primaryColor.withValues(alpha: 0.1),
-                            child: Icon(Icons.book, color: theme.primaryColor, size: 35),
+                            child: Icon(Icons.book,
+                                color: theme.primaryColor, size: 35),
                           );
                         },
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,22 +312,31 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        story.content.length > 60 ? '${story.content.substring(0, 60)}...' : story.content,
-                        style: TextStyle(color: theme.textTheme.bodyMedium?.color, fontSize: 13, height: 1.3),
+                        story.content.length > 60
+                            ? '${story.content.substring(0, 60)}...'
+                            : story.content,
+                        style: TextStyle(
+                            color: theme.textTheme.bodyMedium?.color,
+                            fontSize: 13,
+                            height: 1.3),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.access_time, size: 14, color: theme.textTheme.bodySmall?.color),
-                          SizedBox(width: 4),
+                          Icon(Icons.access_time,
+                              size: 14,
+                              color: theme.textTheme.bodySmall?.color),
+                          const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               'Tạo: ${story.updatedAt}',
-                              style: TextStyle(fontSize: 11, color: theme.textTheme.bodySmall?.color),
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: theme.textTheme.bodySmall?.color),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -325,13 +346,17 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
                     ],
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Container(
-                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      shape: BoxShape.circle),
                   child: IconButton(
                     onPressed: () => _showDeleteDialog(story, context),
-                    icon: Icon(Icons.delete_outline, color: Colors.red[600], size: 18),
-                    constraints: BoxConstraints(minWidth: 36, minHeight: 36),
+                    icon: Icon(Icons.delete_outline,
+                        color: Colors.red[600], size: 18),
+                    constraints:
+                        const BoxConstraints(minWidth: 36, minHeight: 36),
                     padding: EdgeInsets.zero,
                   ),
                 ),
@@ -351,22 +376,26 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Row(
             children: [
               Icon(Icons.warning, color: Colors.red[600]),
-              SizedBox(width: 8),
-              Text('Xác nhận xóa', style: TextStyle(color: theme.textTheme.titleLarge?.color)),
+              const SizedBox(width: 8),
+              Text('Xác nhận xóa',
+                  style: TextStyle(color: theme.textTheme.titleLarge?.color)),
             ],
           ),
           content: Text(
             'Bạn có chắc chắn muốn xóa truyện "${story.name}"?\nHành động này không thể hoàn tác.',
-            style: TextStyle(height: 1.5, color: theme.textTheme.bodyMedium?.color),
+            style: TextStyle(
+                height: 1.5, color: theme.textTheme.bodyMedium?.color),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Hủy', style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
+              child: Text('Hủy',
+                  style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -376,9 +405,10 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[600],
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text('Xóa'),
+              child: const Text('Xóa'),
             ),
           ],
         );

@@ -51,7 +51,7 @@ class StoryListParser {
             storyList.add(Story(
               name: titleElement.text.trim(),
               link: titleElement.attributes['href'] ?? '',
-              description: authorElement?.text.trim() ?? '',
+              author: authorElement?.text.trim() ?? '',
               cover: coverElement?.attributes['data-image'],
               host: TruyenFullConfig.BASE_URL,
             ));

@@ -11,7 +11,7 @@ import 'data/services/config/service_get_it.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setLocator();
-  runApp(ProviderScope(child: AppStarter()));
+  runApp(const ProviderScope(child: AppStarter()));
 }
 
 class AppStarter extends ConsumerStatefulWidget {
@@ -40,12 +40,14 @@ class _AppStarterState extends ConsumerState<AppStarter> {
       data: (_) => MaterialApp(
         themeMode: settings.themeMode,
         darkTheme: ThemeData.dark(),
-        home: MainScreen(),
+        home: const MainScreen(),
       ),
       error: (error, stackTrace) => MaterialApp(
-        home: AppInitErrorView(error: error, onRetry: () {
-          ref.invalidate(appInitViewModelProvider);
-        }),
+        home: AppInitErrorView(
+            error: error,
+            onRetry: () {
+              ref.invalidate(appInitViewModelProvider);
+            }),
       ),
       loading: () => const MaterialApp(
         home: Scaffold(

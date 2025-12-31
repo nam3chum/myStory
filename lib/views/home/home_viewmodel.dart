@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums/view_type.dart';
@@ -59,14 +60,14 @@ class HomeState {
   }
 
   factory HomeState.initial() => HomeState(
-    stories: [],
-    genres: [],
-    homeMenuItems: null,
-    isLoading: false,
-    selectedSlug: '',
-    viewType: ViewType.grid1,
-    errorMessage: '',
-  );
+        stories: [],
+        genres: [],
+        homeMenuItems: null,
+        isLoading: false,
+        selectedSlug: '',
+        viewType: ViewType.grid1,
+        errorMessage: '',
+      );
 }
 
 class HomeViewModel extends AutoDisposeNotifier<HomeState> {
@@ -107,7 +108,9 @@ class HomeViewModel extends AutoDisposeNotifier<HomeState> {
         state = state.copyWith(homeMenuItems: result.data);
       }
     } catch (e) {
-      // Silently fail, menu is optional
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -132,9 +135,5 @@ class HomeViewModel extends AutoDisposeNotifier<HomeState> {
   }
 
   // Constants for menu options
-  static const List<String> menuOptions = [
-    "Quản lý truyện và thể loại",
-    "Kệ sách cá nhân",
-    "Thiết lập"
-  ];
+  static const List<String> menuOptions = ["Quản lý truyện và thể loại", "Kệ sách cá nhân", "Thiết lập"];
 }

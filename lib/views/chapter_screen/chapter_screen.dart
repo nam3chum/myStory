@@ -7,10 +7,10 @@ class ChapterScreen extends ConsumerStatefulWidget {
   final String? chapterName;
 
   const ChapterScreen({
-    Key? key,
+    super.key,
     this.chapterUrl,
     this.chapterName,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -33,7 +33,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
 
   Future<void> _loadChapterContent() async {
     setState(() => _isLoading = true);
-    
+
     try {
       final service = ref.read(truyenFullServiceProvider);
       final result = await service.getChapterContent(
@@ -119,7 +119,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
 class HtmlContent extends StatelessWidget {
   final String htmlData;
 
-  const HtmlContent({Key? key, required this.htmlData}) : super(key: key);
+  const HtmlContent({super.key, required this.htmlData});
 
   /// Loại bỏ HTML tags
   String _stripHtmlIfNeeded(String htmlString) {
@@ -135,8 +135,8 @@ class HtmlContent extends StatelessWidget {
     return Text(
       plainText,
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        height: 1.8,
-      ),
+            height: 1.8,
+          ),
       textAlign: TextAlign.justify,
     );
   }
