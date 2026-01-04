@@ -13,10 +13,10 @@ class DioClientWrapper {
           Dio(
             BaseOptions(
               baseUrl: TruyenFullConfig.BASE_URL,
-              connectTimeout: Duration(
+              connectTimeout: const Duration(
                 seconds: TruyenFullConfig.TIMEOUT_SECONDS,
               ),
-              receiveTimeout: Duration(
+              receiveTimeout: const Duration(
                 seconds: TruyenFullConfig.TIMEOUT_SECONDS,
               ),
               headers: {'User-Agent': TruyenFullConfig.USER_AGENT},
@@ -70,7 +70,7 @@ class UrlUtils {
       return TruyenFullConfig.BASE_URL + url;
     }
 
-    return TruyenFullConfig.BASE_URL + '/' + url;
+    return '${TruyenFullConfig.BASE_URL}/$url';
   }
 
   /// Build URL with query parameters

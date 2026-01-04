@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 
 import '../models/models.dart';
 import 'base_service.dart';
@@ -12,7 +11,7 @@ class TruyenFullService extends BaseService {
   late DetailService _detailService;
   late ChapterService _chapterService;
 
-  TruyenFullService({Dio? dio}) : super(dio: dio) {
+  TruyenFullService({super.dio}) {
     _searchService = SearchService(dio: dioClient.dio);
     _detailService = DetailService(dio: dioClient.dio);
     _chapterService = ChapterService(dio: dioClient.dio);

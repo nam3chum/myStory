@@ -7,16 +7,16 @@ import 'package:mystory/views/story_genre/genre_story_screen.dart';
 
 import '../../data/models/genre_model.dart';
 
-class StoryDetailPage extends ConsumerStatefulWidget {
+class StoryDetailScreen extends ConsumerStatefulWidget {
   final String id;
 
-  const StoryDetailPage({super.key, required this.id});
+  const StoryDetailScreen({super.key, required this.id});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => StoryDetailPageState();
 }
 
-class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerProviderStateMixin {
+class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late final StoryDetailViewmodelNotifier vmRead;
@@ -75,7 +75,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
                 decoration: BoxDecoration(
                   color: backgroundColor,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
+                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
                 ),
                 child: Row(
                   children: [
@@ -583,7 +583,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
                     "body": Style(
                       color: Colors.grey[300],
                       fontSize: FontSize(15),
-                      lineHeight: LineHeight(1.6),
+                      lineHeight: const LineHeight(1.6),
                     ),
                     "p": Style(margin: Margins.only(bottom: 12)),
                   },
@@ -657,7 +657,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailPage> with TickerPro
     return Container(
       height: 56,
       decoration: BoxDecoration(
-        gradient: isPrimary ? LinearGradient(colors: [Colors.orange, Colors.deepOrange]) : null,
+        gradient: isPrimary ? const LinearGradient(colors: [Colors.orange, Colors.deepOrange]) : null,
         color: isPrimary ? null : Colors.grey[800],
         borderRadius: BorderRadius.circular(16),
         boxShadow:

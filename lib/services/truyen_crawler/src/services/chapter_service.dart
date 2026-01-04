@@ -9,7 +9,7 @@ import 'base_service.dart';
 
 /// Service for chapter operations
 class ChapterService extends BaseService {
-  ChapterService({Dio? dio}) : super(dio: dio);
+  ChapterService({super.dio});
 
   /// Get chapter list for a story
   Future<ApiResponse<List<Chapter>>> getChapterList(String storyUrl) async {
@@ -31,7 +31,7 @@ class ChapterService extends BaseService {
 
         // Fetch all pages of chapters
         for (int page = 1; page <= totalPage; page++) {
-          final ajaxUrl = '${TruyenFullConfig.BASE_URL}${TruyenFullConfig.AJAX_ENDPOINT}';
+          const ajaxUrl = '${TruyenFullConfig.BASE_URL}${TruyenFullConfig.AJAX_ENDPOINT}';
 
           try {
             final ajaxResponse = await dioClient.dio.get(

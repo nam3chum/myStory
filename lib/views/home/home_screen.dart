@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mystory/views/seach_screen/search_screen.dart';
 import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
 import '../../core/constants/enums/view_type.dart';
 import '../../core/constants/text_styles/app_text_styles.dart';
-import '../bookshelf_screen/bookshelf_screen.dart';
 import '../commons/skeleton_list.dart';
 import '../commons/story_grid_item.dart';
 import '../commons/story_item.dart';
-import '../settings_screen/setting_screen.dart';
 import '../story_detail_screen/story_detail_screen.dart';
 import '../story_genre/genre_story_screen.dart';
 import 'home_viewmodel.dart';
@@ -104,32 +103,35 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
               ),
             ),
             actions: [
-              IconButton(onPressed: () => _showMenuBottomSheet(), icon: Icon(Icons.sort)),
-              PopupMenuButton<String>(
-                onSelected: (choice) {
-                  if (choice == HomeViewModel.menuOptions[1]) {
-                    // "Kệ sách cá nhân"
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => BookshelfScreen()));
-                  } else if (choice == HomeViewModel.menuOptions[2]) {
-                    // "Thiết lập"
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingScreen()));
-                  }
-                },
-                itemBuilder: (_) {
-                  return moreButtonOptions.map((String choice) {
-                    return PopupMenuItem<String>(
-                      value: choice,
-                      child: Text(choice),
-                    );
-                  }).toList();
-                },
-              ),
+              IconButton(onPressed: () => _showMenuBottomSheet(), icon: const Icon(Icons.sort)),
+              IconButton(onPressed: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchScreen()));
+              }, icon: const Icon(Icons.search)),
+              // PopupMenuButton<String>(
+              //   onSelected: (choice) {
+              //     if (choice == HomeViewModel.menuOptions[1]) {
+              //       // "Kệ sách cá nhân"
+              //       Navigator.push(context, MaterialPageRoute(builder: (context) => const BookshelfScreen()));
+              //     } else if (choice == HomeViewModel.menuOptions[2]) {
+              //       // "Thiết lập"
+              //       Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingScreen()));
+              //     }
+              //   },
+              //   itemBuilder: (_) {
+              //     return moreButtonOptions.map((String choice) {
+              //       return PopupMenuItem<String>(
+              //         value: choice,
+              //         child: Text(choice),
+              //       );
+              //     }).toList();
+              //   },
+              // ),
             ],
           ),
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.all(20),
-              child: Row(
+              child: const Row(
                   children: []
               ),
             ),
@@ -148,7 +150,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         return FadeTransition(
                           opacity: _fadeAnimation,
                           child: SlideTransition(
-                            position: Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero).animate(
+                            position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
                               CurvedAnimation(
                                 parent: _animationController,
                                 curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
@@ -158,7 +160,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => StoryDetailPage(id: story.id)),
+                                  MaterialPageRoute(builder: (context) => StoryDetailScreen(id: story.id)),
                                 );
                               },
                               child: StoryListItem(
@@ -180,7 +182,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         return FadeTransition(
                           opacity: _fadeAnimation,
                           child: SlideTransition(
-                            position: Tween<Offset>(begin: Offset(0, 0.3), end: Offset.zero).animate(
+                            position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
                               CurvedAnimation(
                                 parent: _animationController,
                                 curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
@@ -190,7 +192,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context) => StoryDetailPage(id: story.id)),
+                                  MaterialPageRoute(builder: (context) => StoryDetailScreen(id: story.id)),
                                 );
                               },
                               child: StoryGridItem(
@@ -232,7 +234,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
     final value = ref.watch(homeProvider);
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      sheetAnimationStyle: AnimationStyle(curve: Curves.easeInOut),
+      sheetAnimationStyle: const AnimationStyle(curve: Curves.easeInOut),
       context: context,
       isDismissible: true,
       builder: (context) {
@@ -243,14 +245,14 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
               color: Theme
                   .of(context)
                   .cardColor,
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: 10),
-                Text('Cài đặt'),
-                SizedBox(height: 25),
+                const SizedBox(height: 10),
+                const Text('Cài đặt'),
+                const SizedBox(height: 25),
                 ListTile(
                   title: Text(
                     "Sắp xếp kệ",
@@ -385,7 +387,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                     trailing:
                     isSelected
                         ? Icon(Icons.check_circle, color: color)
-                        : Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                        : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                     onTap: () {
                       vmRead.selectGenre(genre.id);
                       Navigator.pop(context);

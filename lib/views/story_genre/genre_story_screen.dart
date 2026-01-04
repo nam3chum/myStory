@@ -225,7 +225,7 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => StoryDetailPage(id: story.id)),
+                              MaterialPageRoute(builder: (context) => StoryDetailScreen(id: story.id)),
                             );
                           },
                           child: StoryListItem(

@@ -8,37 +8,37 @@ import 'base_service.dart';
 
 /// Service for story details and metadata
 class DetailService extends BaseService {
-  DetailService({Dio? dio}) : super(dio: dio);
+  DetailService({super.dio});
 
   /// Get home menu items
   Future<ApiResponse<List<HomeMenuItem>>> getHomeMenu() async {
     try {
       final menuItems = [
-        HomeMenuItem(
+        const HomeMenuItem(
           title: "Truyện mới cập nhật",
           input: "${TruyenFullConfig.BASE_URL}/danh-sach/truyen-moi/",
         ),
-        HomeMenuItem(
+        const HomeMenuItem(
           title: "Truyện Hot",
           input: "${TruyenFullConfig.BASE_URL}/danh-sach/truyen-hot/",
         ),
-        HomeMenuItem(
+        const HomeMenuItem(
           title: "Truyện Full",
           input: "${TruyenFullConfig.BASE_URL}/danh-sach/truyen-full/",
         ),
-        HomeMenuItem(
+        const HomeMenuItem(
           title: "Tiên Hiệp Hay",
           input: "${TruyenFullConfig.BASE_URL}/danh-sach/tien-hiep-hay/",
         ),
-        HomeMenuItem(
+        const HomeMenuItem(
           title: "Kiếm Hiệp Hay",
           input: "${TruyenFullConfig.BASE_URL}/danh-sach/kiem-hiep-hay/",
         ),
-        HomeMenuItem(
+        const HomeMenuItem(
           title: "Truyện Teen Hay",
           input: "${TruyenFullConfig.BASE_URL}/danh-sach/truyen-teen-hay/",
         ),
-        HomeMenuItem(
+        const HomeMenuItem(
           title: "Ngôn Tình Hay",
           input: "${TruyenFullConfig.BASE_URL}/danh-sach/ngon-tinh-hay/",
         ),
@@ -54,16 +54,16 @@ class DetailService extends BaseService {
   Future<ApiResponse<List<Genre>>> getGenres() async {
     try {
       final genres = [
-        Genre(title: "Tiên Hiệp", input: "${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/"),
-        Genre(title: "Kiếm Hiệp", input: "${TruyenFullConfig.BASE_URL}/the-loai/kiem-hiep/"),
-        Genre(title: "Ngôn Tình", input: "${TruyenFullConfig.BASE_URL}/the-loai/ngon-tinh/"),
-        Genre(title: "Đô Thị", input: "${TruyenFullConfig.BASE_URL}/the-loai/do-thi/"),
-        Genre(title: "Quan Trường", input: "${TruyenFullConfig.BASE_URL}/the-loai/quan-truong/"),
-        Genre(title: "Võng Du", input: "${TruyenFullConfig.BASE_URL}/the-loai/vong-du/"),
-        Genre(title: "Khoa Huyễn", input: "${TruyenFullConfig.BASE_URL}/the-loai/khoa-huyen/"),
-        Genre(title: "Hệ Thống", input: "${TruyenFullConfig.BASE_URL}/the-loai/he-thong/"),
-        Genre(title: "Huyền Huyễn", input: "${TruyenFullConfig.BASE_URL}/the-loai/huyen-huyen/"),
-        Genre(title: "Dị Giới", input: "${TruyenFullConfig.BASE_URL}/the-loai/di-gioi/"),
+        const Genre(title: "Tiên Hiệp", input: "${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/"),
+        const Genre(title: "Kiếm Hiệp", input: "${TruyenFullConfig.BASE_URL}/the-loai/kiem-hiep/"),
+        const Genre(title: "Ngôn Tình", input: "${TruyenFullConfig.BASE_URL}/the-loai/ngon-tinh/"),
+        const Genre(title: "Đô Thị", input: "${TruyenFullConfig.BASE_URL}/the-loai/do-thi/"),
+        const Genre(title: "Quan Trường", input: "${TruyenFullConfig.BASE_URL}/the-loai/quan-truong/"),
+        const Genre(title: "Võng Du", input: "${TruyenFullConfig.BASE_URL}/the-loai/vong-du/"),
+        const Genre(title: "Khoa Huyễn", input: "${TruyenFullConfig.BASE_URL}/the-loai/khoa-huyen/"),
+        const Genre(title: "Hệ Thống", input: "${TruyenFullConfig.BASE_URL}/the-loai/he-thong/"),
+        const Genre(title: "Huyền Huyễn", input: "${TruyenFullConfig.BASE_URL}/the-loai/huyen-huyen/"),
+        const Genre(title: "Dị Giới", input: "${TruyenFullConfig.BASE_URL}/the-loai/di-gioi/"),
       ];
 
       return ApiResponse.success(genres);

@@ -257,7 +257,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
             await Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => StoryDetailPage(id: story.id)),
+                  builder: (context) => StoryDetailScreen(id: story.id)),
             );
             ref.read(bookshelfProvider.notifier).loadStories();
           },
