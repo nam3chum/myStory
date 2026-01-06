@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/data/services/config/service_get_it.dart';
+import 'package:mystory/services/truyen_crawler/src/models/detail_models.dart';
+import 'package:mystory/services/truyen_crawler/src/services/services.dart';
 
 import '../../data/database/database_controller.dart';
-import '../../data/models/genre_model.dart';
-import '../../data/models/story_model.dart';
+
 import '../../data/services/network/service_genre.dart';
 import '../../data/services/network/service_story.dart';
+import '../../services/truyen_crawler/src/models/story.dart';
 
-final storyDetailProvider = NotifierProvider.family<StoryDetailViewmodelNotifier, StoryDetailState, String>(
+final storyDetailProvider = NotifierProvider.family<
+    StoryDetailViewmodelNotifier, StoryDetailState, String>(
   StoryDetailViewmodelNotifier.new,
 );
 
 class StoryDetailState {
-  final Story story;
+  final StoryDetail storyDetail;
   final List<Genre> genreList;
   final bool isLoading;
   final bool isBookmarked;
@@ -21,7 +24,7 @@ class StoryDetailState {
   final String errorMessage;
 
   StoryDetailState({
-    required this.story,
+    required this.storyDetail,
     required this.genreList,
     required this.isLoading,
     required this.isBookmarked,
@@ -30,16 +33,16 @@ class StoryDetailState {
   });
 
   factory StoryDetailState.initial() => StoryDetailState(
-    story: Story.empty(),
-    genreList: [],
-    isLoading: false,
-    isBookmarked: false,
-    hasError: false,
-    errorMessage: '',
-  );
+        storyDetail: StoryDetail.empty(),
+        genreList: [],
+        isLoading: false,
+        isBookmarked: false,
+        hasError: false,
+        errorMessage: '',
+      );
 
   StoryDetailState copyWith({
-    Story? story,
+    StoryDetail? storyDetail,
     List<Genre>? genreList,
     bool? isLoading,
     bool? isBookmarked,
@@ -47,7 +50,7 @@ class StoryDetailState {
     String? errorMessage,
   }) {
     return StoryDetailState(
-      story: story ?? this.story,
+      storyDetail: storyDetail ?? this.storyDetail,
       genreList: genreList ?? this.genreList,
       isLoading: isLoading ?? this.isLoading,
       isBookmarked: isBookmarked ?? this.isBookmarked,
@@ -57,14 +60,17 @@ class StoryDetailState {
   }
 }
 
-class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, String> {
+class StoryDetailViewmodelNotifier
+    extends FamilyNotifier<StoryDetailState, String> {
   late final String storyId;
   final genreService = getIt<ApiGenreService>();
   final storyService = getIt<ApiStoryService>();
   final DatabaseController dbController = getIt<DatabaseController>();
+  late final TruyenFullService crawler;
 
   @override
   StoryDetailState build(String arg) {
+    crawler = TruyenFullService();
     storyId = arg;
     fetchStory(storyId);
     checkBookMarked(storyId);
@@ -74,8 +80,8 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
 
   Future<void> loadGenres() async {
     try {
-      final genres = await genreService.getGenres();
-      state = state.copyWith(genreList: genres.cast<Genre>());
+      final genres = await crawler.getGenres();
+      state = state.copyWith(genreList: genres.data);
     } catch (e) {
       final localGenres = await dbController.getAllGenres();
       state = state.copyWith(genreList: localGenres);
@@ -88,15 +94,15 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
     print("check bookmark = ${state.isBookmarked}");
   }
 
-  Future<void> fetchStory(String id) async {
+  Future<void> fetchStory(String storyUrl) async {
     state = state.copyWith(isLoading: true);
     try {
-      final result = await storyService.getStoryById(id);
-      state = state.copyWith(story: result, isLoading: false);
+      final result = await crawler.getStoryDetail(storyUrl);
+      state = state.copyWith(storyDetail: result.data, isLoading: false);
     } catch (e) {
       debugPrint('Lỗi tải từ API: $e');
       try {
-        final localStory = await dbController.getStoryById(id);
+        final localStory = await dbController.getStoryById();
         if (localStory != null) {
           state = state.copyWith(story: localStory, isLoading: false);
         } else {
@@ -104,7 +110,6 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
         }
       } catch (e2) {
         debugPrint('Lỗi tải từ DB local: $e2');
-
         // Cả 2 cùng lỗi
         state = state.copyWith(isLoading: false, hasError: true);
       }
@@ -124,8 +129,9 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
         state = state.copyWith(errorMessage: 'Đã xóa khỏi kệ sách');
       }
     } catch (e) {
-      state = state.copyWith(isBookmarked: !isCheckBookmark, errorMessage: 'Thao tác thất bại: ${e.toString()}');
+      state = state.copyWith(
+          isBookmarked: !isCheckBookmark,
+          errorMessage: 'Thao tác thất bại: ${e.toString()}');
     }
   }
-
 }

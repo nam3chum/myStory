@@ -8,7 +8,7 @@ import 'base_service.dart';
 
 /// Service for searching stories
 class SearchService extends BaseService {
-  SearchService({Dio? dio}) : super(dio: dio);
+  SearchService({super.dio});
 
   /// Search stories by keyword with pagination
   Future<ApiResponse<ListResponse<Story>>> search(

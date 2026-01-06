@@ -65,7 +65,6 @@ class DetailService extends BaseService {
         const Genre(title: "Huyền Huyễn", input: "${TruyenFullConfig.BASE_URL}/the-loai/huyen-huyen/"),
         const Genre(title: "Dị Giới", input: "${TruyenFullConfig.BASE_URL}/the-loai/di-gioi/"),
       ];
-
       return ApiResponse.success(genres);
     } catch (e) {
       return ApiResponse.error('Failed to get genres: $e');

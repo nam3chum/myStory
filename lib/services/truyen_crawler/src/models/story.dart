@@ -23,6 +23,15 @@ class Story {
       host: json['host'] ?? '',
     );
   }
+  factory Story.empty(){
+    return const Story(
+      name: '',
+      link: '',
+      author: '',
+      cover: '',
+      host: '',
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'name': name,
@@ -31,7 +40,6 @@ class Story {
     'cover': cover,
     'host': host,
   };
-
   @override
   String toString() => 'Story(name: $name, author: $author)';
 }

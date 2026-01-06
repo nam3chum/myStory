@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/data/database/database_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../../data/models/genre_model.dart';
+import '../../services/truyen_crawler/src/models/detail_models.dart';
 import '../../data/models/story_model.dart';
 
 final dbProvider = Provider<DatabaseController>((ref) {
@@ -22,7 +22,7 @@ class DatabaseController {
     await batch.commit(noResult: true);
   }
 
-  Future<List<Genre>> getAllGenres() async {
+  Future<List<Genre>>? getAllGenres() async {
     final db = await DataBaseProvider.dataBaseProvider.db;
     var result = await db.query("genresTable", orderBy: "id DESC");
     return result.isNotEmpty ? result.map((e) => Genre.fromJson(e)).toList() : [];

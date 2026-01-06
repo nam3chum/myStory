@@ -1,4 +1,3 @@
-
 import '../models/models.dart';
 import 'base_service.dart';
 import 'search_service.dart';
