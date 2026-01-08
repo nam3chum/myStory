@@ -5,13 +5,11 @@ import 'package:mystory/services/truyen_crawler/src/models/detail_models.dart';
 import 'package:mystory/services/truyen_crawler/src/services/services.dart';
 
 import '../../data/database/database_controller.dart';
-
 import '../../data/services/network/service_genre.dart';
 import '../../data/services/network/service_story.dart';
 import '../../services/truyen_crawler/src/models/story.dart';
 
-final storyDetailProvider = NotifierProvider.family<
-    StoryDetailViewmodelNotifier, StoryDetailState, String>(
+final storyDetailProvider = NotifierProvider.family<StoryDetailViewmodelNotifier, StoryDetailState, String>(
   StoryDetailViewmodelNotifier.new,
 );
 
@@ -60,8 +58,7 @@ class StoryDetailState {
   }
 }
 
-class StoryDetailViewmodelNotifier
-    extends FamilyNotifier<StoryDetailState, String> {
+class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, String> {
   late final String storyId;
   final genreService = getIt<ApiGenreService>();
   final storyService = getIt<ApiStoryService>();
@@ -101,37 +98,24 @@ class StoryDetailViewmodelNotifier
       state = state.copyWith(storyDetail: result.data, isLoading: false);
     } catch (e) {
       debugPrint('Lỗi tải từ API: $e');
-      try {
-        final localStory = await dbController.getStoryById();
-        if (localStory != null) {
-          state = state.copyWith(story: localStory, isLoading: false);
-        } else {
-          state = state.copyWith(isLoading: false, hasError: true);
-        }
-      } catch (e2) {
-        debugPrint('Lỗi tải từ DB local: $e2');
-        // Cả 2 cùng lỗi
-        state = state.copyWith(isLoading: false, hasError: true);
-      }
     }
   }
 
-  Future<void> toggleBookmark(Story story) async {
+  Future<void> toggleBookmark(String storyUrl) async {
     final isCheckBookmark = !state.isBookmarked;
     state = state.copyWith(isBookmarked: isCheckBookmark);
 
     try {
       if (isCheckBookmark) {
-        await dbController.createStory(story);
+        await dbController.createStory(storyUrl);
         state = state.copyWith(errorMessage: 'Đã thêm vào kệ sách');
       } else {
         await dbController.deleteStory(story.id);
         state = state.copyWith(errorMessage: 'Đã xóa khỏi kệ sách');
       }
     } catch (e) {
-      state = state.copyWith(
-          isBookmarked: !isCheckBookmark,
-          errorMessage: 'Thao tác thất bại: ${e.toString()}');
+      state =
+          state.copyWith(isBookmarked: !isCheckBookmark, errorMessage: 'Thao tác thất bại: ${e.toString()}');
     }
   }
 }

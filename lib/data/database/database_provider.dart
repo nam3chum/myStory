@@ -61,11 +61,11 @@ class DataBaseProvider {
         )
         ''');
       },
-      onUpgrade: (db, oldVersion, newVersion) async {
-        if (oldVersion < 2) {
-          await db.execute("ALTER TABLE storiesTable ADD COLUMN storyType TEXT");
-        }
-      },
+      // onUpgrade: (db, oldVersion, newVersion) async {
+      //   if (oldVersion < 2) {
+      //     await db.execute("ALTER TABLE storiesTable ADD COLUMN storyType TEXT");
+      //   }
+      // },
     );
   }
 }
