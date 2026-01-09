@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/data/database/database_provider.dart';
+import 'package:mystory/services/truyen_crawler/src/models/story.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../../services/truyen_crawler/src/models/detail_models.dart';
-import '../../data/models/story_model.dart';
+
 
 final dbProvider = Provider<DatabaseController>((ref) {
   return DatabaseController();

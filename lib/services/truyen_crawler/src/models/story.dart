@@ -1,5 +1,6 @@
 /// Story model
 class Story {
+  final String id;
   final String name;
   final String link;
   final String author; // Author
@@ -7,6 +8,7 @@ class Story {
   final String host;
 
   const Story({
+    this.id = '',
     required this.name,
     required this.link,
     required this.author,
@@ -16,6 +18,7 @@ class Story {
 
   factory Story.fromJson(Map<String, dynamic> json) {
     return Story(
+      id: json['id'] ?? '',
       name: json['name'] ?? '',
       link: json['link'] ?? '',
       author: json['author'] ?? '',
@@ -25,6 +28,7 @@ class Story {
   }
   factory Story.empty(){
     return const Story(
+      id: '',
       name: '',
       link: '',
       author: '',
@@ -34,6 +38,7 @@ class Story {
   }
 
   Map<String, dynamic> toJson() => {
+    'id' : id,
     'name': name,
     'link': link,
     'author': author,

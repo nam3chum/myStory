@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mystory/services/truyen_crawler/src/models/story.dart';
 
 import '../../data/models/genre_model.dart';
-import '../../data/models/story_model.dart';
+
 import '../../data/services/config/service_get_it.dart';
 import '../../data/services/network/service_genre.dart';
 import '../../data/services/network/service_story.dart';

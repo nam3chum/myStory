@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:mystory/services/truyen_crawler/src/models/story.dart';
 import 'package:retrofit/dio.dart';
 import 'package:retrofit/error_logger.dart';
 
 import 'package:retrofit/http.dart';
 
-import '../../models/story_model.dart';
+
 
 part 'service_story.g.dart';
 

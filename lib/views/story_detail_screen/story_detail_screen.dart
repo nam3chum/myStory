@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/views/story_detail_screen/story_detail_viewmodel.dart';
-import 'package:mystory/views/story_genre/genre_story_screen.dart';
 
 import '../../data/models/genre_model.dart';
 
@@ -181,7 +180,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                       color: state.isBookmarked ? Colors.orange : Colors.white,
                     ),
                     onPressed: () async {
-                      await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.story);
+                      await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.storyDetail);
                     },
                   ),
                 ),

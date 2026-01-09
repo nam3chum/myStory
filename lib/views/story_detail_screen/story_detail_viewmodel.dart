@@ -107,7 +107,12 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
 
     try {
       if (isCheckBookmark) {
-        await dbController.createStory(storyUrl);
+        await dbController.createStory(Story(
+          name: state.storyDetail.name,
+          author: state.storyDetail.author,
+          link: storyUrl,
+          host:
+        ));
         state = state.copyWith(errorMessage: 'Đã thêm vào kệ sách');
       } else {
         await dbController.deleteStory(story.id);
