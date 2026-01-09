@@ -1,8 +1,8 @@
 import '../models/models.dart';
 import 'base_service.dart';
-import 'search_service.dart';
-import 'detail_service.dart';
 import 'chapter_service.dart';
+import 'detail_service.dart';
+import 'search_service.dart';
 
 /// Main service combining all sub-services
 class TruyenFullService extends BaseService {
@@ -24,8 +24,7 @@ class TruyenFullService extends BaseService {
       _searchService.search(keyword, page: page);
 
   // --- Detail Operations ---
-  Future<ApiResponse<List<HomeMenuItem>>> getHomeMenu() =>
-      _detailService.getHomeMenu();
+  Future<ApiResponse<List<HomeMenuItem>>> getHomeMenu() => _detailService.getHomeMenu();
 
   Future<ApiResponse<List<Genre>>> getGenres() => _detailService.getGenres();
 
@@ -35,8 +34,7 @@ class TruyenFullService extends BaseService {
   }) =>
       _detailService.getStoriesByGenre(genreUrl, page: page);
 
-  Future<ApiResponse<StoryDetail>> getStoryDetail(String storyUrl) =>
-      _detailService.getDetail(storyUrl);
+  Future<ApiResponse<StoryDetail>> getStoryDetail(String storyUrl) => _detailService.getDetail(storyUrl);
 
   // --- Chapter Operations ---
   Future<ApiResponse<List<Chapter>>> getChapterList(String storyUrl) =>

@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/data/database/database_controller.dart';
 
-import '../../data/models/story_model.dart';
+import '../../services/truyen_crawler/src/models/story.dart';
 
 final bookshelfProvider = NotifierProvider<BookshelfNotifier, Bookshelf>(() {
   return BookshelfNotifier();

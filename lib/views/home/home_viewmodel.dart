@@ -3,21 +3,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/enums/view_type.dart';
-import '../../data/models/genre_model.dart';
-import '../../data/models/story_model.dart';
 import '../../data/services/config/service_get_it.dart';
 import '../../data/services/network/dio_client.dart';
-import '../../data/services/network/service_genre.dart';
-import '../../data/services/network/service_story.dart';
 import '../../data/services/pref/preference.dart';
-import '../../services/truyen_crawler/truyen_crawler.dart' as crawler_models;
+import '../../services/truyen_crawler/truyen_crawler.dart';
 
 final homeProvider = NotifierProvider.autoDispose<HomeViewModel, HomeState>(HomeViewModel.new);
 
 class HomeState {
   final List<Story> stories;
   final List<Genre> genres;
-  final List<crawler_models.HomeMenuItem>? homeMenuItems;
+  final List<HomeMenuItem>? homeMenuItems;
   final bool isLoading;
   final String? errorMessage;
   String selectedSlug;
@@ -42,7 +38,7 @@ class HomeState {
   HomeState copyWith({
     List<Story>? stories,
     List<Genre>? genres,
-    List<crawler_models.HomeMenuItem>? homeMenuItems,
+    List<HomeMenuItem>? homeMenuItems,
     bool? isLoading,
     String? errorMessage,
     String? selectedSlug,
@@ -71,27 +67,23 @@ class HomeState {
 }
 
 class HomeViewModel extends AutoDisposeNotifier<HomeState> {
-  late final ApiGenreService _genreService;
-  late final ApiStoryService _storyService;
   late final ThemePreference _pref;
-  late final crawler_models.TruyenFullService _truyenService;
+  late final TruyenFullService _truyenService;
 
   @override
   HomeState build() {
     _pref = getIt<ThemePreference>();
-    _genreService = getIt<ApiGenreService>();
-    _storyService = getIt<ApiStoryService>();
-    _truyenService = crawler_models.TruyenFullService();
+    _truyenService = TruyenFullService();
     return HomeState.initial();
   }
 
-  Future<void> loadStories() async {
+  Future<void> loadStories(String genreUrl) async {
     state = state.copyWith(isLoading: true);
 
     try {
-      final stories = await _storyService.getStories();
-      final genres = await _genreService.getGenres();
-      state = state.copyWith(stories: stories, genres: genres, errorMessage: null);
+      final stories = await _truyenService.getStoriesByGenre(genreUrl);
+      final genres = await _truyenService.getGenres();
+      state = state.copyWith(stories: stories.data?.items, genres: genres.data, errorMessage: 'thành công');
     } on DioException catch (e) {
       final error = DioClient.handleError(e);
       state = state.copyWith(errorMessage: (error.toString()));
@@ -112,10 +104,6 @@ class HomeViewModel extends AutoDisposeNotifier<HomeState> {
         print(e);
       }
     }
-  }
-
-  Future<void> retryLoadStories() async {
-    await loadStories();
   }
 
   Future<void> getViewMode() async {

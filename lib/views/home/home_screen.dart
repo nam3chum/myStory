@@ -5,6 +5,7 @@ import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
 import '../../core/constants/enums/view_type.dart';
 import '../../core/constants/text_styles/app_text_styles.dart';
+import '../../services/truyen_crawler/src/config/app_config.dart';
 import '../commons/skeleton_list.dart';
 import '../commons/story_grid_item.dart';
 import '../commons/story_item.dart';
@@ -43,7 +44,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
       end: 1.0,
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     Future.microtask(() async {
-      await vmRead.loadStories();
+      await vmRead.loadStories("${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/");
       await vmRead.getViewMode();
     });
     _animationController.forward();
@@ -104,9 +105,11 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
             ),
             actions: [
               IconButton(onPressed: () => _showMenuBottomSheet(), icon: const Icon(Icons.sort)),
-              IconButton(onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchScreen()));
-              }, icon: const Icon(Icons.search)),
+              IconButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchScreen()));
+                  },
+                  icon: const Icon(Icons.search)),
               // PopupMenuButton<String>(
               //   onSelected: (choice) {
               //     if (choice == HomeViewModel.menuOptions[1]) {
@@ -131,101 +134,102 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.all(20),
-              child: const Row(
-                  children: []
-              ),
+              child: const Row(children: []),
             ),
           ),
           vm.isLoading
               ? const SliverToBoxAdapter(child: Center(child: SkeletonItem()))
               : SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: Builder(
-              builder: (context) {
-                switch (vm.viewType) {
-                  case ViewType.list:
-                    return SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final story = vm.stories[index];
-                        return FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: SlideTransition(
-                            position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-                              CurvedAnimation(
-                                parent: _animationController,
-                                curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
-                              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: Builder(
+                    builder: (context) {
+                      switch (vm.viewType) {
+                        case ViewType.list:
+                          return SliverList(
+                            delegate: SliverChildBuilderDelegate((context, index) {
+                              final story = vm.stories[index];
+                              return FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: SlideTransition(
+                                  position:
+                                      Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+                                    CurvedAnimation(
+                                      parent: _animationController,
+                                      curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
+                                    ),
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => StoryDetailScreen(storyUrl: story.link)),
+                                      );
+                                    },
+                                    child: StoryListItem(
+                                      index: index,
+                                      context: context,
+                                      gradientColors: gradientColors,
+                                      listGenre: vm.genres,
+                                      story: story,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }, childCount: vm.stories.length),
+                          );
+                        case ViewType.grid1:
+                          return SliverGrid(
+                            delegate: SliverChildBuilderDelegate((context, index) {
+                              final story = vm.stories[index];
+                              return FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: SlideTransition(
+                                  position:
+                                      Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+                                    CurvedAnimation(
+                                      parent: _animationController,
+                                      curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
+                                    ),
+                                  ),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => StoryDetailScreen(storyUrl: story.link)),
+                                      );
+                                    },
+                                    child: StoryGridItem(
+                                      fontSize: ref.watch(settingsProvider).fontSize,
+                                      listGenre: vm.genres,
+                                      story: story,
+                                      accentColor: gradientColors.first,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }, childCount: vm.stories.length),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                              childAspectRatio: 0.7,
                             ),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => StoryDetailScreen(id: story.id)),
-                                );
-                              },
-                              child: StoryListItem(
-                                index: index,
-                                context: context,
-                                gradientColors: gradientColors,
-                                listGenre: vm.genres,
-                                story: story,
-                              ),
-                            ),
-                          ),
-                        );
-                      }, childCount: vm.stories.length),
-                    );
-                  case ViewType.grid1:
-                    return SliverGrid(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final story = vm.stories[index];
-                        return FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: SlideTransition(
-                            position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-                              CurvedAnimation(
-                                parent: _animationController,
-                                curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
-                              ),
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => StoryDetailScreen(id: story.id)),
-                                );
-                              },
-                              child: StoryGridItem(
-                                fontSize: ref.watch(settingsProvider).fontSize,
-                                listGenre: vm.genres,
-                                story: story,
-                                accentColor: gradientColors.first,
-                              ),
-                            ),
-                          ),
-                        );
-                      }, childCount: vm.stories.length),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.7,
-                      ),
-                    );
-                  case ViewType.grid2:
-                  // TODO: Handle this case.
-                    throw UnimplementedError();
-                  case ViewType.grid3:
-                  // TODO: Handle this case.
-                    throw UnimplementedError();
-                }
-              },
-            ),
-          ),
+                          );
+                        case ViewType.grid2:
+                          // TODO: Handle this case.
+                          throw UnimplementedError();
+                        case ViewType.grid3:
+                          // TODO: Handle this case.
+                          throw UnimplementedError();
+                      }
+                    },
+                  ),
+                ),
         ],
       ),
       drawer: _buildEnhancedDrawer(),
-
     );
   }
 
@@ -242,10 +246,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Container(
             decoration: BoxDecoration(
-              color: Theme
-                  .of(context)
-                  .cardColor,
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+              color: Theme.of(context).cardColor,
+              borderRadius:
+                  const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -266,7 +269,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         icon: const Icon(Icons.view_list_rounded, size: 15),
                         color: value.viewType == ViewType.list ? Colors.blue : Colors.grey,
                         tooltip: "Hiển thị dạng danh sách",
-                        onPressed: () async{
+                        onPressed: () async {
                           await vm.setViewMode(ViewType.list);
                         },
                       ),
@@ -275,15 +278,15 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         color: value.viewType == ViewType.grid1 ? Colors.blue : Colors.grey,
                         tooltip: "Hiển thị dạng lưới 1",
                         onPressed: () async {
-                         await vm.setViewMode(ViewType.grid1);
+                          await vm.setViewMode(ViewType.grid1);
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.grid_3x3, size: 15),
                         color: value.viewType == ViewType.grid2 ? Colors.blue : Colors.grey,
                         tooltip: "Hiển thị dạng lưới 2",
-                        onPressed: () async{
-                         await vm.setViewMode(ViewType.grid2);
+                        onPressed: () async {
+                          await vm.setViewMode(ViewType.grid2);
                         },
                       ),
                       IconButton(
@@ -291,7 +294,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         color: value.viewType == ViewType.grid3 ? Colors.blue : Colors.grey,
                         tooltip: "Hiển thị dạng lưới 3",
                         onPressed: () async {
-                         await vm.setViewMode(ViewType.grid3);
+                          await vm.setViewMode(ViewType.grid3);
                         },
                       ),
                     ],
@@ -342,7 +345,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Khám phá ${vm.stories.length} thể loại',
+                      'Khám phá ${vm.genres.length} thể loại',
                       style: AppTextStyles.body(context: context, opacity: 0.8, ref: ref),
                     ),
                   ],
@@ -353,48 +356,43 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(8),
-              itemCount: vm.stories.length,
+              itemCount: vm.genres.length,
               itemBuilder: (context, index) {
                 final genre = vm.genres[index];
                 final isSelected = vm.selectedSlug == genre.id;
-                final color = gradientColors[index % gradientColors.length];
+                // final color = gradientColors[index % gradientColors.length];
 
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    color: isSelected ? color.withValues(alpha: 0.1) : Colors.transparent,
-                    border: isSelected ? Border.all(color: color, width: 2) : null,
+                    border: isSelected ? Border.all(color: Colors.white, width: 1) : null,
                   ),
                   child: ListTile(
                     leading: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.1),
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(Icons.bookmark, color: color, size: 20),
+                      child: Icon(Icons.bookmark, color: Theme.of(context).primaryColorDark, size: 20),
                     ),
                     title: Text(
-                      genre.name,
+                      genre.title,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        color: isSelected ? color : Colors.grey[800],
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Theme.of(context).hintColor : Colors.grey[800],
                         fontSize: 16,
                         fontFamily: fontFamily,
                       ),
                     ),
-                    trailing:
-                    isSelected
-                        ? Icon(Icons.check_circle, color: color)
-                        : const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
                     onTap: () {
                       vmRead.selectGenre(genre.id);
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => GenreStoryListScreen(genreName: genre.name, genreId: genre.id),
+                          builder: (_) => GenreStoryListScreen(genreName: genre.title, genreUrl: genre.input),
                         ),
                       );
                     },
@@ -408,4 +406,3 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
     );
   }
 }
-

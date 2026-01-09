@@ -1,15 +1,15 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/views/story_detail_screen/story_detail_viewmodel.dart';
+import 'package:mystory/views/story_genre/genre_story_screen.dart';
 
-import '../../data/models/genre_model.dart';
+import '../../services/truyen_crawler/src/models/detail_models.dart';
 
 class StoryDetailScreen extends ConsumerStatefulWidget {
-  final String id;
+  final String storyUrl;
 
-  const StoryDetailScreen({super.key, required this.id});
+  const StoryDetailScreen({super.key, required this.storyUrl});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => StoryDetailPageState();
@@ -23,38 +23,36 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
   void readStory() {}
 
   void loadTableOfContents(BuildContext context) {
-   // StoryDetailMenu(menuItems: [],onSelected: (_){},);
+    // StoryDetailMenu(menuItems: [],onSelected: (_){},);
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
             ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
-                ),
-                const SizedBox(height: 20),
-                const Text('Mục lục', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 20),
-                const Text('Tính năng đang được phát triển...'),
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
+            const SizedBox(height: 20),
+            const Text('Mục lục', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            const Text('Tính năng đang được phát triển...'),
+            const SizedBox(height: 40),
+          ],
+        ),
+      ),
     );
   }
 
   void _showOverlayMessage(
-
     BuildContext context,
     String message, {
     Color backgroundColor = Colors.black87,
@@ -63,30 +61,29 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
     final overlay = Overlay.of(context);
 
     final entry = OverlayEntry(
-      builder:
-          (_) => Positioned(
-            bottom: 30,
-            left: 20,
-            right: 20,
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
-                ),
-                child: Row(
-                  children: [
-                    Icon(icon, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
-                  ],
-                ),
-              ),
+      builder: (_) => Positioned(
+        bottom: 30,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
+            ),
+            child: Row(
+              children: [
+                Icon(icon, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+              ],
             ),
           ),
+        ),
+      ),
     );
 
     overlay.insert(entry);
@@ -96,15 +93,15 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
   @override
   void initState() {
     super.initState();
-    vmRead = ref.read(storyDetailProvider(widget.id).notifier);
+    vmRead = ref.read(storyDetailProvider(widget.storyUrl).notifier);
     _animationController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
     Future.microtask(() {
-      vmRead.fetchStory(widget.id);
-      vmRead.checkBookMarked(widget.id);
+      vmRead.fetchStory(widget.storyUrl);
+      vmRead.checkBookMarked(widget.storyUrl);
       vmRead.loadGenres();
     });
     _animationController.forward();
@@ -118,8 +115,8 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(storyDetailProvider(widget.id));
-    ref.listen(storyDetailProvider(widget.id), (previous, next) {
+    final state = ref.watch(storyDetailProvider(widget.storyUrl));
+    ref.listen(storyDetailProvider(widget.storyUrl), (previous, next) {
       if (next.errorMessage.isNotEmpty && next.errorMessage != previous?.errorMessage) {
         _showOverlayMessage(context, next.errorMessage);
       }
@@ -146,7 +143,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.black,
+      backgroundColor: ,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: CustomScrollView(
@@ -180,7 +177,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                       color: state.isBookmarked ? Colors.orange : Colors.white,
                     ),
                     onPressed: () async {
-                      await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.storyDetail);
+                      //await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.storyDetail);
                     },
                   ),
                 ),
@@ -198,9 +195,9 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                   fit: StackFit.expand,
                   children: [
                     Hero(
-                      tag: 'story_${state.story.id}',
+                      tag: 'story_${state.storyDetail.host}',
                       child: Image.network(
-                        state.story.imgUrl,
+                        state.storyDetail.cover ?? '',
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
@@ -347,7 +344,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                         child: InkWell(
                           borderRadius: BorderRadius.circular(16),
                           onTap: () {
-                            ref.read(storyDetailProvider(widget.id).notifier).fetchStory(widget.id);
+                            ref.read(storyDetailProvider(widget.storyUrl).notifier).fetchStory(widget.storyUrl);
                           },
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -368,7 +365,6 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 12),
                   Expanded(
                     child: Container(
@@ -412,14 +408,14 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
   }
 
   Widget _buildStoryInfo() {
-    final state = ref.watch(storyDetailProvider(widget.id));
+    final state = ref.watch(storyDetailProvider(widget.storyUrl));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            state.story.name,
+            state.storyDetail.name,
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -428,15 +424,15 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
             ),
           ),
           const SizedBox(height: 12),
-          if (state.story.author.isNotEmpty)
+          if (state.storyDetail.author.isNotEmpty)
             Row(
               children: [
                 Icon(Icons.person, size: 16, color: Colors.grey[400]),
                 const SizedBox(width: 8),
-                Text(state.story.author, style: TextStyle(fontSize: 16, color: Colors.grey[300])),
+                Text(state.storyDetail.author, style: TextStyle(fontSize: 16, color: Colors.grey[300])),
               ],
             ),
-          if (state.story.originName.isNotEmpty) ...[
+          if (state.storyDetail.name.isNotEmpty) ...[
             const SizedBox(height: 8),
             Row(
               children: [
@@ -444,7 +440,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
-                    state.story.originName,
+                    state.storyDetail.name,
                     style: const TextStyle(
                       fontSize: 16,
                       color: Colors.orangeAccent,
@@ -461,66 +457,64 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
   }
 
   Widget _buildGenreTags() {
-    final state = ref.watch(storyDetailProvider(widget.id));
+    final state = ref.watch(storyDetailProvider(widget.storyUrl));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Wrap(
         spacing: 10,
         runSpacing: 8,
-        children:
-            state.story.genreId.map((e) {
-              final genre = state.genreList.firstWhere(
-                (g) => g.id == e.toString(),
-                orElse: () => Genre(id: e.toString(), name: 'Không rõ'),
-              );
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.orange.withValues(alpha: .8), Colors.deepOrange.withValues(alpha: 0.8)],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.orange.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+        children: state.storyDetail.genres.map((e) {
+          final genre = state.genreList.firstWhere(
+            (g) => g.title == e.title,
+            orElse: () => Genre(id: e.id, title: e.title,input: e.input),
+          );
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.orange.withValues(alpha: .8), Colors.deepOrange.withValues(alpha: 0.8)],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.orange.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
                 ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => GenreStoryListScreen(genreId: genre.id, genreName: genre.name),
-                        ),
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Text(
-                        genre.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GenreStoryListScreen(genreUrl: genre.input, genreName: genre.title),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Text(
+                    genre.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
                     ),
                   ),
                 ),
-              );
-            }).toList(),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 
   Widget _buildStoryStats() {
-    final state = ref.watch(storyDetailProvider(widget.id));
+    final state = ref.watch(storyDetailProvider(widget.storyUrl));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
@@ -537,7 +531,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
             Container(width: 1, height: 40, color: Colors.grey[700]),
             _buildStatItem(Icons.favorite, "4.8", "Đánh giá"),
             Container(width: 1, height: 40, color: Colors.grey[700]),
-            _buildStatItem(Icons.menu_book, state.story.numberOfChapter.toString(), "Chương"),
+            _buildStatItem(Icons.menu_book, state.storyDetail.ongoing.toString(), "Chương"),
           ],
         ),
       ),
@@ -556,7 +550,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
   }
 
   Widget _buildDescription() {
-    final state = ref.watch(storyDetailProvider(widget.id));
+    final state = ref.watch(storyDetailProvider(widget.storyUrl));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -578,7 +572,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Html(
-                  data: state.story.content,
+                  data: state.storyDetail.description,
                   style: {
                     "body": Style(
                       color: Colors.grey[300],
@@ -597,7 +591,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
   }
 
   Widget _buildBottomActionBar() {
-    final state = ref.watch(storyDetailProvider(widget.id));
+    final state = ref.watch(storyDetailProvider(widget.storyUrl));
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
@@ -637,7 +631,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                 icon: state.isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                 label: "Kệ sách",
                 onTap: () async {
-                  await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.story);
+                 // await ref.read(storyDetailProvider(widget.id).notifier).toggleBookmark(state.story);
                 },
                 isPrimary: false,
               ),
@@ -660,16 +654,15 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
         gradient: isPrimary ? const LinearGradient(colors: [Colors.orange, Colors.deepOrange]) : null,
         color: isPrimary ? null : Colors.grey[800],
         borderRadius: BorderRadius.circular(16),
-        boxShadow:
-            isPrimary
-                ? [
-                  BoxShadow(
-                    color: Colors.orange.withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-                : null,
+        boxShadow: isPrimary
+            ? [
+                BoxShadow(
+                  color: Colors.orange.withValues(alpha: 0.4),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ]
+            : null,
       ),
       child: Material(
         color: Colors.transparent,

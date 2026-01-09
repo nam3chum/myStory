@@ -28,12 +28,12 @@ class SettingsState {
     );
   }
 
-  factory SettingsState.initial() => SettingsState(
-    fontSize: 16.0,
-    fontFamily: 'Roboto',
-    language: 'Theo hệ thống',
-    themeMode: ThemeMode.light,
-  );
+  factory SettingsState.initial() => const SettingsState(
+        fontSize: 16.0,
+        fontFamily: 'Roboto',
+        language: 'Theo hệ thống',
+        themeMode: ThemeMode.light,
+      );
 }
 
 // Constants - move to ViewModel

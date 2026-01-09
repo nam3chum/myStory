@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/models/story_model.dart';
+import '../../services/truyen_crawler/src/models/story.dart';
 import '../story_detail_screen/story_detail_screen.dart';
 import 'bookshelf_viewmodel.dart';
 
@@ -12,21 +12,18 @@ class BookshelfScreen extends ConsumerStatefulWidget {
   ConsumerState<BookshelfScreen> createState() => _BookshelfScreenState();
 }
 
-class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
-    with TickerProviderStateMixin {
+class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-        duration: const Duration(milliseconds: 300), vsync: this);
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(
-        CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut));
     Future.microtask(() {
       ref.read(bookshelfProvider.notifier).loadStories();
     });
@@ -81,8 +78,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
           SizedBox(width: 8),
           Text(
             'Kệ sách',
-            style: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -189,8 +185,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
                     color: theme.primaryColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.auto_stories_outlined,
-                      size: 64, color: theme.primaryColor),
+                  child: Icon(Icons.auto_stories_outlined, size: 64, color: theme.primaryColor),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -205,10 +200,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
                 Text(
                   'Kệ chưa có truyện, hãy thêm truyện mới\nđể bắt đầu hành trình khám phá!',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: theme.textTheme.bodyMedium?.color,
-                      height: 1.5),
+                  style: TextStyle(fontSize: 16, color: theme.textTheme.bodyMedium?.color, height: 1.5),
                 ),
                 const SizedBox(height: 24),
                 // ElevatedButton.icon(
@@ -244,9 +236,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: theme.shadowColor.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 5)),
+              color: theme.shadowColor.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 5)),
         ],
       ),
       child: Material(
@@ -256,8 +246,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
           onTap: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => StoryDetailScreen(id: story.id)),
+              MaterialPageRoute(builder: (context) => StoryDetailScreen(storyUrl: story.link)),
             );
             ref.read(bookshelfProvider.notifier).loadStories();
           },
@@ -284,13 +273,12 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        story.imgUrl,
+                        story.cover ?? '',
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: theme.primaryColor.withValues(alpha: 0.1),
-                            child: Icon(Icons.book,
-                                color: theme.primaryColor, size: 35),
+                            child: Icon(Icons.book, color: theme.primaryColor, size: 35),
                           );
                         },
                       ),
@@ -313,50 +301,37 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),
-                      Text(
-                        story.content.length > 60
-                            ? '${story.content.substring(0, 60)}...'
-                            : story.content,
-                        style: TextStyle(
-                            color: theme.textTheme.bodyMedium?.color,
-                            fontSize: 13,
-                            height: 1.3),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time,
-                              size: 14,
-                              color: theme.textTheme.bodySmall?.color),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              'Tạo: ${story.updatedAt}',
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: theme.textTheme.bodySmall?.color),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
+                      // Text(
+                      //   story.content.length > 60 ? '${story.content.substring(0, 60)}...' : story.content,
+                      //   style: TextStyle(color: theme.textTheme.bodyMedium?.color, fontSize: 13, height: 1.3),
+                      //   maxLines: 2,
+                      //   overflow: TextOverflow.ellipsis,
+                      // ),
+                      // const SizedBox(height: 8),
+                      // Row(
+                      //   children: [
+                      //     Icon(Icons.access_time, size: 14, color: theme.textTheme.bodySmall?.color),
+                      //     const SizedBox(width: 4),
+                      //     Expanded(
+                      //       child: Text(
+                      //         'Tạo: ${story.updatedAt}',
+                      //         style: TextStyle(fontSize: 11, color: theme.textTheme.bodySmall?.color),
+                      //         maxLines: 1,
+                      //         overflow: TextOverflow.ellipsis,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.1),
-                      shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.1), shape: BoxShape.circle),
                   child: IconButton(
                     onPressed: () => _showDeleteDialog(story, context),
-                    icon: Icon(Icons.delete_outline,
-                        color: Colors.red[600], size: 18),
-                    constraints:
-                        const BoxConstraints(minWidth: 36, minHeight: 36),
+                    icon: Icon(Icons.delete_outline, color: Colors.red[600], size: 18),
+                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     padding: EdgeInsets.zero,
                   ),
                 ),
@@ -376,26 +351,22 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: theme.colorScheme.surface,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Row(
             children: [
               Icon(Icons.warning, color: Colors.red[600]),
               const SizedBox(width: 8),
-              Text('Xác nhận xóa',
-                  style: TextStyle(color: theme.textTheme.titleLarge?.color)),
+              Text('Xác nhận xóa', style: TextStyle(color: theme.textTheme.titleLarge?.color)),
             ],
           ),
           content: Text(
             'Bạn có chắc chắn muốn xóa truyện "${story.name}"?\nHành động này không thể hoàn tác.',
-            style: TextStyle(
-                height: 1.5, color: theme.textTheme.bodyMedium?.color),
+            style: TextStyle(height: 1.5, color: theme.textTheme.bodyMedium?.color),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Hủy',
-                  style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
+              child: Text('Hủy', style: TextStyle(color: theme.textTheme.bodyMedium?.color)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -405,8 +376,7 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[600],
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text('Xóa'),
             ),

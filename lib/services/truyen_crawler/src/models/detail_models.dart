@@ -27,14 +27,9 @@ class StoryDetail {
       author: json['author'] ?? '',
       description: json['description'] ?? '',
       ongoing: json['ongoing'] ?? false,
-      genres: (json['genres'] as List?)
-              ?.map((e) => Genre.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
-      suggests: (json['suggests'] as List?)
-              ?.map((e) => Genre.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          [],
+      genres: (json['genres'] as List?)?.map((e) => Genre.fromJson(e as Map<String, dynamic>)).toList() ?? [],
+      suggests:
+          (json['suggests'] as List?)?.map((e) => Genre.fromJson(e as Map<String, dynamic>)).toList() ?? [],
       host: json['host'] ?? '',
     );
   }
@@ -60,8 +55,7 @@ class StoryDetail {
       };
 
   @override
-  String toString() =>
-      'StoryDetail(name: $name, author: $author, ongoing: $ongoing)';
+  String toString() => 'StoryDetail(name: $name, author: $author, ongoing: $ongoing)';
 }
 
 /// Genre/Category model
@@ -69,13 +63,11 @@ class Genre {
   final String id;
   final String title;
   final String input; // URL
-  final String script;
 
   const Genre({
     this.id = '',
     required this.title,
     required this.input,
-    this.script = "gen.js",
   });
 
   factory Genre.fromJson(Map<String, dynamic> json) {
@@ -83,7 +75,6 @@ class Genre {
       id: json['id'] ?? '',
       title: json['title'] ?? '',
       input: json['input'] ?? '',
-      script: json['script'] ?? 'gen.js',
     );
   }
 
@@ -92,7 +83,6 @@ class Genre {
       id: '',
       title: '',
       input: '',
-      script: 'gen.js',
     );
   }
 
@@ -100,7 +90,6 @@ class Genre {
         'id': id,
         'title': title,
         'input': input,
-        'script': script,
       };
 
   @override

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/core/constants/text_styles/app_text_styles.dart';
 import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
-import '../../data/models/genre_model.dart';
-import '../../data/models/story_model.dart';
+import '../../services/truyen_crawler/src/models/detail_models.dart';
+import '../../services/truyen_crawler/src/models/story.dart';
 
 class StoryListItem extends ConsumerWidget {
   final Story story;
@@ -38,24 +38,18 @@ class StoryListItem extends ConsumerWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: SizedBox(
-                  width: 80,
-                  height: 120,
-                  child: story.imgUrl.trim().isNotEmpty
-                      ? Image.network(
-                          story.imgUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: accentColor.withValues(alpha: 0.1),
-                              child: Icon(Icons.auto_stories, color: accentColor.withValues(alpha: 0.5)),
-                            );
-                          },
-                        )
-                      : Container(
+                    width: 80,
+                    height: 120,
+                    child: Image.network(
+                      story.cover ?? '',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
                           color: accentColor.withValues(alpha: 0.1),
                           child: Icon(Icons.auto_stories, color: accentColor.withValues(alpha: 0.5)),
-                        ),
-                ),
+                        );
+                      },
+                    )),
               ),
               const SizedBox(width: 12),
               // Nội dung truyện
@@ -98,27 +92,27 @@ class StoryListItem extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(story.status).withValues(alpha: 0.1),
+                              color: _getStatusColor(story.author).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              story.status,
+                              story.author,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: _getStatusColor(story.status),
+                                color: _getStatusColor(story.author),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            '${story.numberOfChapter} chương',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                            ),
-                          ),
+                          // Text(
+                          //   '${story.numberOfChapter} chương',
+                          //   style: TextStyle(
+                          //     fontSize: 11,
+                          //     fontWeight: FontWeight.w600,
+                          //     color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ],

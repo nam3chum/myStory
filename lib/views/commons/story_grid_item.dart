@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/models/genre_model.dart';
-import '../../data/models/story_model.dart';
+import '../../services/truyen_crawler/src/models/detail_models.dart';
+import '../../services/truyen_crawler/src/models/story.dart';
 
 class StoryGridItem extends ConsumerWidget {
   final Story story;
@@ -57,38 +57,36 @@ class StoryGridItem extends ConsumerWidget {
                   topLeft: Radius.circular(20),
                   bottomLeft: Radius.circular(20),
                 ),
-                child:
-                    story.imgUrl.trim().isNotEmpty
-                        ? Stack(
-                          children: [
-                            SizedBox(
+                child:  Stack(
+                        children: [
+                          SizedBox(
+                            width: 130 * base,
+                            height: 210 * base,
+                            child: Image.network(
+                              story.cover ?? '',
+                              fit: BoxFit.cover,
                               width: 130 * base,
                               height: 210 * base,
-                              child: Image.network(
-                                story.imgUrl,
-                                fit: BoxFit.cover,
-                                width: 130 * base,
-                                height: 210 * base,
-                                alignment: Alignment.topCenter,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return _buildImagePlaceholder(accentColor);
-                                },
+                              alignment: Alignment.topCenter,
+                              errorBuilder: (context, error, stackTrace) {
+                                return _buildImagePlaceholder(accentColor);
+                              },
+                            ),
+                          ),
+                          Container(
+                            width: 130,
+                            height: 210,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [Colors.transparent, accentColor.withAlpha(25)],
                               ),
                             ),
-                            Container(
-                              width: 130,
-                              height: 210,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [Colors.transparent, accentColor.withAlpha(25)],
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                        : _buildImagePlaceholder(accentColor),
+                          ),
+                        ],
+                      )
+
               ),
             ),
 
@@ -115,15 +113,15 @@ class StoryGridItem extends ConsumerWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Status badge
-                    if (story.status.isNotEmpty)
+                    if (story.author.isNotEmpty)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(story.status),
+                          color: _getStatusColor(story.author),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          story.status,
+                          story.author,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 8,
@@ -148,12 +146,12 @@ class StoryGridItem extends ConsumerWidget {
                     const SizedBox(height: 2),
 
                     // Chapter
-                    Text(
-                      "Chương ${story.numberOfChapter}",
-                      style: TextStyle(color: Colors.grey[300], fontSize: 9, height: 1.1),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    // Text(
+                    //   "Chương ${story.numberOfChapter}",
+                    //   style: TextStyle(color: Colors.grey[300], fontSize: 9, height: 1.1),
+                    //   maxLines: 2,
+                    //   overflow: TextOverflow.ellipsis,
+                    // ),
                   ],
                 ),
               ),

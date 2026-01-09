@@ -19,10 +19,10 @@ class Chapter {
   }
 
   Map<String, dynamic> toJson() => {
-    'name': name,
-    'url': url,
-    'host': host,
-  };
+        'name': name,
+        'url': url,
+        'host': host,
+      };
 
   @override
   String toString() => 'Chapter(name: $name)';
@@ -44,17 +44,15 @@ class ChapterContent {
     return ChapterContent(
       chapterName: json['chapterName'] ?? '',
       content: json['content'] ?? '',
-      fetchedAt: json['fetchedAt'] != null
-          ? DateTime.parse(json['fetchedAt'] as String)
-          : null,
+      fetchedAt: json['fetchedAt'] != null ? DateTime.parse(json['fetchedAt'] as String) : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'chapterName': chapterName,
-    'content': content,
-    'fetchedAt': fetchedAt?.toIso8601String(),
-  };
+        'chapterName': chapterName,
+        'content': content,
+        'fetchedAt': fetchedAt?.toIso8601String(),
+      };
 
   @override
   String toString() => 'ChapterContent(chapter: $chapterName)';
@@ -64,27 +62,23 @@ class ChapterContent {
 class HomeMenuItem {
   final String title;
   final String input; // URL
-  final String script;
 
   const HomeMenuItem({
     required this.title,
     required this.input,
-    this.script = "gen.js",
   });
 
   factory HomeMenuItem.fromJson(Map<String, dynamic> json) {
     return HomeMenuItem(
       title: json['title'] ?? '',
       input: json['input'] ?? '',
-      script: json['script'] ?? 'gen.js',
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'title': title,
-    'input': input,
-    'script': script,
-  };
+        'title': title,
+        'input': input,
+      };
 
   @override
   String toString() => 'HomeMenuItem(title: $title)';

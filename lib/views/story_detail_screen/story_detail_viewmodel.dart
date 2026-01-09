@@ -7,7 +7,6 @@ import 'package:mystory/services/truyen_crawler/src/services/services.dart';
 import '../../data/database/database_controller.dart';
 import '../../data/services/network/service_genre.dart';
 import '../../data/services/network/service_story.dart';
-import '../../services/truyen_crawler/src/models/story.dart';
 
 final storyDetailProvider = NotifierProvider.family<StoryDetailViewmodelNotifier, StoryDetailState, String>(
   StoryDetailViewmodelNotifier.new,
@@ -59,7 +58,7 @@ class StoryDetailState {
 }
 
 class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, String> {
-  late final String storyId;
+  late final String storyUrl;
   final genreService = getIt<ApiGenreService>();
   final storyService = getIt<ApiStoryService>();
   final DatabaseController dbController = getIt<DatabaseController>();
@@ -68,9 +67,9 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
   @override
   StoryDetailState build(String arg) {
     crawler = TruyenFullService();
-    storyId = arg;
-    fetchStory(storyId);
-    checkBookMarked(storyId);
+    storyUrl = arg;
+    fetchStory(storyUrl);
+    checkBookMarked(storyUrl);
     loadGenres();
     return StoryDetailState.initial();
   }
@@ -104,23 +103,23 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
   Future<void> toggleBookmark(String storyUrl) async {
     final isCheckBookmark = !state.isBookmarked;
     state = state.copyWith(isBookmarked: isCheckBookmark);
-
-    try {
-      if (isCheckBookmark) {
-        await dbController.createStory(Story(
-          name: state.storyDetail.name,
-          author: state.storyDetail.author,
-          link: storyUrl,
-          host:
-        ));
-        state = state.copyWith(errorMessage: 'Đã thêm vào kệ sách');
-      } else {
-        await dbController.deleteStory(story.id);
-        state = state.copyWith(errorMessage: 'Đã xóa khỏi kệ sách');
-      }
-    } catch (e) {
-      state =
-          state.copyWith(isBookmarked: !isCheckBookmark, errorMessage: 'Thao tác thất bại: ${e.toString()}');
-    }
+    // try {
+    //   if (isCheckBookmark) {
+    //     await dbController.createStory(Story(
+    //       name: state.storyDetail.name,
+    //       author: state.storyDetail.author,
+    //       link: storyUrl,
+    //       host:
+    //     ));
+    //     state = state.copyWith(errorMessage: 'Đã thêm vào kệ sách');
+    //   } else {
+    //     await dbController.deleteStory(story.id);
+    //     state = state.copyWith(errorMessage: 'Đã xóa khỏi kệ sách');
+    //   }
+    // } catch (e) {
+    //   state =
+    //       state.copyWith(isBookmarked: !isCheckBookmark, errorMessage: 'Thao tác thất bại: ${e.toString()}');
+    // }
+    //
   }
 }
