@@ -6,7 +6,6 @@ import 'package:mystory/views/home/home_screen.dart';
 import 'package:mystory/views/main_screen/main_viewmodel.dart';
 import 'package:mystory/views/settings_screen/setting_screen.dart';
 
-
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
@@ -27,12 +26,13 @@ class MainScreen extends ConsumerWidget {
         children: pages,
       ),
       bottomNavigationBar: NavigationBar(
+        backgroundColor: Theme.of(context).cardColor,
         indicatorColor: Colors.blue,
         elevation: 120,
         height: 60,
         selectedIndex: state.selectedIndex,
         onDestinationSelected: vm.changeTab,
-        labelPadding: EdgeInsets.only(top: 0),
+       // labelPadding: const EdgeInsets.only(top: 0),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home), label: "Trang chủ"),
           NavigationDestination(icon: Icon(Icons.menu_book_sharp), label: "Kệ sách"),

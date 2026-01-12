@@ -40,10 +40,9 @@ class _SettingScreenState extends ConsumerState<SettingScreen> with TickerProvid
     return Theme(
       data: isDark ? SettingsNotifier.buildDarkTheme() : SettingsNotifier.buildLightTheme(),
       child: Scaffold(
-        backgroundColor: isDark ? Colors.black : Colors.white,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: isDark ? Colors.black : Colors.white,
+        //  backgroundColor: isDark ? Colors.black : Colors.white,
           elevation: 0,
           title: Text(
             'Cài đặt',

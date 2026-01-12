@@ -143,7 +143,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: ,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: CustomScrollView(
