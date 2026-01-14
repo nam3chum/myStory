@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mystory/views/commons/story_item.dart';
 import 'package:mystory/views/story_detail_screen/story_detail_screen.dart';
 
 import '../../../services/truyen_crawler/src/models/story.dart';
@@ -6,8 +7,16 @@ import '../../../services/truyen_crawler/src/models/story.dart';
 class SearchResultList extends StatelessWidget {
   final bool loading;
   final List<Story> results;
+  final List<Color> gradientColors = [
+    Colors.deepPurple,
+    Colors.purple,
+    Colors.pink,
+    Colors.indigo,
+    Colors.blue,
+    Colors.teal,
+  ];
 
-  const SearchResultList({
+  SearchResultList({
     super.key,
     required this.loading,
     required this.results,
@@ -33,23 +42,11 @@ class SearchResultList extends StatelessWidget {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => StoryDetailScreen(storyUrl: story.link)));
           },
-          child: ListTile(
-            leading: story.cover != null
-                ? Image.network(
-                    story.cover!,
-                    width: 50,
-                    height: 80,
-                    fit: BoxFit.cover,
-                  )
-                : Container(
-                    width: 50,
-                    height: 80,
-                    color: Colors.grey,
-                    child: const Icon(Icons.book),
-                  ),
-            title: Text(story.name),
-            subtitle: Text(story.author),
-          ),
+          child: StoryListItem(
+              story: story,
+              context: context,
+              index: i,
+              gradientColors: gradientColors),
         );
       },
     );

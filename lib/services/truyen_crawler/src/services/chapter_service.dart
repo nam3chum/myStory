@@ -1,5 +1,6 @@
-import 'package:dio/dio.dart';
 import 'dart:convert';
+
+import 'package:dio/dio.dart';
 
 import '../config/config.dart';
 import '../models/models.dart';
@@ -47,9 +48,8 @@ class ChapterService extends BaseService {
 
             if (ajaxResponse.statusCode == 200) {
               try {
-                final jsonData = ajaxResponse.data is String
-                    ? jsonDecode(ajaxResponse.data)
-                    : ajaxResponse.data;
+                final jsonData =
+                    ajaxResponse.data is String ? jsonDecode(ajaxResponse.data) : ajaxResponse.data;
                 final chaptersHtml = jsonData['chap_list'] ?? '';
 
                 if (chaptersHtml.isNotEmpty) {

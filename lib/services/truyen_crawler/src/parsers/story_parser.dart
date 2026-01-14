@@ -1,7 +1,7 @@
 import 'package:html/parser.dart' as html_parser;
 
-import '../models/models.dart';
 import '../config/config.dart';
+import '../models/models.dart';
 
 /// Selectors for parsing HTML
 class HtmlSelectors {
@@ -10,6 +10,8 @@ class HtmlSelectors {
   static const String storyTitle = ".truyen-title > a";
   static const String storyAuthor = ".author";
   static const String storyCover = "[data-image]";
+  static const String storyStatus = ".col-xs-7";
+  static const String storyChapter = '.col-xs-2.text-info a ';
 
   // Detail page selectors
   static const String detailTitle = "h3.title";
@@ -18,6 +20,7 @@ class HtmlSelectors {
   static const String detailDescription = "div.desc-text";
   static const String detailGenres = ".info a[itemprop=genre]";
   static const String detailOngoing = "div.info";
+  static const String detailRatingValue = 'span[itemprop="ratingValue"]';
 
   // Chapter selectors
   static const String chapterList = ".list-chapter li a";
@@ -37,7 +40,7 @@ class StoryListParser {
   static List<Story> parse(String htmlContent) {
     final document = html_parser.parse(htmlContent);
     final storyList = <Story>[];
-
+    // int? chapterNumber;
     try {
       final elements = document.querySelectorAll(HtmlSelectors.storyList);
 
@@ -46,7 +49,19 @@ class StoryListParser {
           final titleElement = element.querySelector(HtmlSelectors.storyTitle);
           final authorElement = element.querySelector(HtmlSelectors.storyAuthor);
           final coverElement = element.querySelector(HtmlSelectors.storyCover);
+          final statusElement = element.querySelector(HtmlSelectors.storyStatus)?.innerHtml ?? '';
+          final chapterElement = element.querySelector(HtmlSelectors.storyChapter);
+          int? chapterNumber;
 
+          final text = chapterElement?.text;
+
+          final match = RegExp(r'\d+').firstMatch(text ?? '');
+
+          if (match != null) {
+            chapterNumber = int.parse(match.group(0)!);
+          }
+
+          final ongoing = statusElement.contains('label-title label-full');
           if (titleElement != null) {
             storyList.add(Story(
               name: titleElement.text.trim(),
@@ -54,6 +69,8 @@ class StoryListParser {
               author: authorElement?.text.trim() ?? '',
               cover: coverElement?.attributes['data-image'],
               host: TruyenFullConfig.BASE_URL,
+              status: ongoing.toString(),
+              chapter: chapterNumber.toString(),
             ));
           }
         } catch (e) {
@@ -76,29 +93,27 @@ class StoryDetailParser {
     try {
       final titleElement = document.querySelector(HtmlSelectors.detailTitle);
       final coverElement = document.querySelector(HtmlSelectors.detailCover);
-      final authorElement =
-          document.querySelector(HtmlSelectors.detailAuthor);
-      final descElement =
-          document.querySelector(HtmlSelectors.detailDescription);
-      final genreElements =
-          document.querySelectorAll(HtmlSelectors.detailGenres);
-      final infoHtml =
-          document.querySelector(HtmlSelectors.detailOngoing)?.innerHtml ?? '';
+      final authorElement = document.querySelector(HtmlSelectors.detailAuthor);
+      final descElement = document.querySelector(HtmlSelectors.detailDescription);
+      final genreElements = document.querySelectorAll(HtmlSelectors.detailGenres);
+      final infoHtml = document.querySelector(HtmlSelectors.detailOngoing)?.innerHtml ?? '';
+      final ratingElement = document.querySelector(HtmlSelectors.detailRatingValue);
 
       final genres = genreElements
           .map((e) => Genre(
-            title: e.text.trim(),
-            input: e.attributes['href'] ?? '',
-          ))
+                title: e.text.trim(),
+                input: e.attributes['href'] ?? '',
+              ))
           .toList();
 
-      final ongoing = infoHtml.contains('>Đang ra<');
+      final ongoing = infoHtml.contains('>Full<');
 
       return StoryDetail(
         name: titleElement?.text.trim() ?? 'Unknown',
         cover: coverElement?.attributes['src'],
         author: authorElement?.text.trim() ?? 'Unknown',
         description: descElement?.innerHtml ?? '',
+        rateValue: ratingElement?.text.trim() ?? '0',
         ongoing: ongoing,
         genres: genres,
         suggests: [
@@ -120,8 +135,7 @@ class PaginationParser {
   static String? parse(String htmlContent) {
     try {
       final document = html_parser.parse(htmlContent);
-      final nextElement =
-          document.querySelectorAll(HtmlSelectors.pagination).lastOrNull;
+      final nextElement = document.querySelectorAll(HtmlSelectors.pagination).lastOrNull;
       return nextElement?.text.trim();
     } catch (e) {
       return null;
@@ -132,6 +146,7 @@ class PaginationParser {
 /// Exception for HTML parsing errors
 class HtmlParseException implements Exception {
   final String message;
+
   HtmlParseException(this.message);
 
   @override

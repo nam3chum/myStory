@@ -3,10 +3,11 @@ class StoryDetail {
   final String name;
   final String? cover;
   final String author;
-  final String description; // HTML
+  final String description;
   final bool ongoing;
   final List<Genre> genres;
-  final List<Genre> suggests; // Same author stories
+  final List<Genre> suggests;
+  final String rateValue;
   final String host;
 
   const StoryDetail({
@@ -18,6 +19,7 @@ class StoryDetail {
     this.genres = const [],
     this.suggests = const [],
     required this.host,
+    this.rateValue = '0',
   });
 
   factory StoryDetail.fromJson(Map<String, dynamic> json) {
@@ -31,16 +33,12 @@ class StoryDetail {
       suggests:
           (json['suggests'] as List?)?.map((e) => Genre.fromJson(e as Map<String, dynamic>)).toList() ?? [],
       host: json['host'] ?? '',
+      rateValue: json['rateValue'] ?? '0',
     );
   }
 
   factory StoryDetail.empty() {
-    return const StoryDetail(
-      name: '',
-      author: '',
-      description: '',
-      host: '',
-    );
+    return const StoryDetail(name: '', author: '', description: '', host: '', rateValue: '0');
   }
 
   Map<String, dynamic> toJson() => {
@@ -52,6 +50,7 @@ class StoryDetail {
         'genres': genres.map((e) => e.toJson()).toList(),
         'suggests': suggests.map((e) => e.toJson()).toList(),
         'host': host,
+        'rateValue': rateValue,
       };
 
   @override

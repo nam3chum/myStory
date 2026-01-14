@@ -11,14 +11,12 @@ class StoryListItem extends ConsumerWidget {
   final BuildContext context;
   final int index;
 
-  final List<Genre> listGenre;
   final List<Color> gradientColors;
 
   const StoryListItem({
     required this.story,
     required this.context,
     required this.index,
-    required this.listGenre,
     required this.gradientColors,
     super.key,
   });
@@ -92,21 +90,21 @@ class StoryListItem extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(story.author).withValues(alpha: 0.1),
+                              color: _getStatusColor(story.status ?? '').withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              story.author,
+                              statusToString(story.status ?? ''),
                               style: TextStyle(
                                 fontSize: 11,
-                                color: _getStatusColor(story.author),
+                                color: _getStatusColor(story.status ?? ''),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          // const SizedBox(width: 8),
                           // Text(
-                          //   '${story.numberOfChapter} chương',
+                          //   '${story.status}',
                           //   style: TextStyle(
                           //     fontSize: 11,
                           //     fontWeight: FontWeight.w600,
@@ -120,14 +118,13 @@ class StoryListItem extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              // Thời gian cập nhật
               Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: Text(
-                  'Vừa xong',
+                  'Chương ${story.chapter.toString()}',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    color: _getStatusColor(story.status ?? ''),
                   ),
                 ),
               ),
@@ -139,13 +136,26 @@ class StoryListItem extends ConsumerWidget {
   }
 }
 
+String statusToString(String status) {
+  switch (status.toLowerCase()) {
+    case 'true':
+      return 'Hoàn thành';
+    case 'false':
+      return 'Đang ra';
+    default:
+      return 'Tạm dừng';
+  }
+}
+
 Color _getStatusColor(String status) {
   switch (status.toLowerCase()) {
-    case 'hoàn thành':
+    case 'Hoàn thành':
     case 'completed':
+    case 'true':
       return Colors.green;
-    case 'đang tiến hành':
+    case 'Đang ra':
     case 'ongoing':
+    case 'false':
       return Colors.blue;
     case 'tạm dừng':
     case 'paused':

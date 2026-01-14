@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mystory/data/services/truyen_crawler_provider.dart';
+
+import 'chapter_viewmodel.dart';
 
 class ChapterScreen extends ConsumerStatefulWidget {
-  final String? chapterUrl;
-  final String? chapterName;
+  final String chapterUrl;
+  final String chapterName;
 
   const ChapterScreen({
     super.key,
-    this.chapterUrl,
-    this.chapterName,
+    required this.chapterUrl,
+    required this.chapterName,
   });
 
   @override
@@ -19,60 +20,34 @@ class ChapterScreen extends ConsumerStatefulWidget {
 }
 
 class ChapterState extends ConsumerState<ChapterScreen> {
-  bool _isLoading = false;
-  String _chapterContent = '';
-  String? _errorMessage;
-
   @override
   void initState() {
     super.initState();
-    if (widget.chapterUrl != null && widget.chapterUrl!.isNotEmpty) {
-      _loadChapterContent();
-    }
-  }
-
-  Future<void> _loadChapterContent() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final service = ref.read(truyenFullServiceProvider);
-      final result = await service.getChapterContent(
-        widget.chapterUrl!,
-        widget.chapterName ?? 'Chương không xác định',
-      );
-
-      if (result.success && result.data != null) {
-        setState(() {
-          _chapterContent = result.data!.content;
-          _errorMessage = null;
-        });
-      } else {
-        setState(() {
-          _errorMessage = result.error ?? 'Không thể tải nội dung chương';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Lỗi: ${e.toString()}';
-      });
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    Future.microtask(() async {
+      await ref
+          .read(chapterViewModelProvider.notifier)
+          .loadChapterContent(widget.chapterUrl, widget.chapterName);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_errorMessage != null) {
+    final vm = ref.watch(chapterViewModelProvider);
+    final vmRead = ref.read(chapterViewModelProvider.notifier);
+
+    if (vm.errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.chapterName ?? 'Chương')),
+        appBar: AppBar(title: Text(widget.chapterName)),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(_errorMessage!),
+              Text(vm.errorMessage ?? 'Lỗi không xác định', style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _loadChapterContent,
+                onPressed: () async {
+                  await vmRead.loadChapterContent(widget.chapterUrl, widget.chapterName);
+                },
                 child: const Text('Thử lại'),
               ),
             ],
@@ -81,31 +56,30 @@ class ChapterState extends ConsumerState<ChapterScreen> {
       );
     }
 
-    if (_isLoading) {
+    if (vm.isLoading) {
       return Scaffold(
-        appBar: AppBar(title: Text(widget.chapterName ?? 'Chương')),
+        appBar: AppBar(title: Text(widget.chapterName)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.chapterName ?? 'Chương'),
+        title: Text(widget.chapterName),
         elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            if (widget.chapterName != null)
-              Text(
-                widget.chapterName!,
-                style: Theme.of(context).textTheme.titleLarge,
-                textAlign: TextAlign.center,
-              ),
+            Text(
+              widget.chapterName,
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 24),
-            if (_chapterContent.isNotEmpty)
-              HtmlContent(htmlData: _chapterContent)
+            if (vm.chapterContent.isNotEmpty)
+              HtmlContent(htmlData: vm.chapterContent)
             else
               const Center(child: Text('Không có nội dung chương')),
           ],

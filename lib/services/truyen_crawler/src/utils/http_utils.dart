@@ -87,14 +87,14 @@ class UrlUtils {
   }
 }
 
-/// String extension utilities
-extension StringExtensions on String {
-  /// Normalize URL
-  String normalizeUrl() => UrlUtils.normalizeUrl(this);
-
-  /// Check if URL starts with http
-  bool get isAbsoluteUrl => startsWith('http');
-
-  /// Check if URL is relative
-  bool get isRelativeUrl => !isAbsoluteUrl;
-}
+// /// String extension utilities
+// extension StringExtensions on String {
+//   /// Normalize URL
+//   String normalizeUrl() => UrlUtils.normalizeUrl(this);
+//
+//   /// Check if URL starts with http
+//   bool get isAbsoluteUrl => startsWith('http');
+//
+//   /// Check if URL is relative
+//   bool get isRelativeUrl => !isAbsoluteUrl;
+// }

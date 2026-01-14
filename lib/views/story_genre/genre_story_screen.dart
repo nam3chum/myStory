@@ -55,8 +55,8 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
       end: 1.0,
     ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
 
-    Future.microtask(() {
-      vmRead.loadStories(widget.genreUrl);
+    Future.microtask(() async {
+      await vmRead.loadStories(widget.genreUrl);
     });
     _animationController.forward();
   }
@@ -239,7 +239,6 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
                                   index: index,
                                   context: context,
                                   gradientColors: gradientColors,
-                                  listGenre: vm.listGenre,
                                   story: story,
                                 ),
                               ),

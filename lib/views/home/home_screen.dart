@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mystory/views/commons/skeleton_list.dart';
 import 'package:mystory/views/seach_screen/search_screen.dart';
 import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
 import '../../core/constants/enums/view_type.dart';
 import '../../core/constants/text_styles/app_text_styles.dart';
 import '../../services/truyen_crawler/src/config/app_config.dart';
-import '../commons/skeleton_list.dart';
 import '../commons/story_grid_item.dart';
 import '../commons/story_item.dart';
 import '../story_detail_screen/story_detail_screen.dart';
@@ -58,17 +58,17 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
 
   @override
   Widget build(BuildContext context) {
+    //moreButtonOptions = HomeViewModel.menuOptions;
+
     final vm = ref.watch(homeProvider);
-
-    ref.listen<HomeState>(homeProvider, (prev, next) {
-      if (next.hasError) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(next.errorMessage.toString())));
-      }
-    });
-
-    moreButtonOptions = HomeViewModel.menuOptions;
+    //
+    // ref.listen<HomeState>(homeProvider, (prev, next) {
+    //   if (next.hasError) {
+    //     ScaffoldMessenger.of(context)
+    //       ..hideCurrentSnackBar()
+    //       ..showSnackBar(SnackBar(content: Text(next.errorMessage.toString())));
+    //   }
+    // });
 
     return Scaffold(
       body: CustomScrollView(
@@ -138,7 +138,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
             ),
           ),
           vm.isLoading
-              ? const SliverToBoxAdapter(child: Center(child: SkeletonItem()))
+              ? const SliverToBoxAdapter(child: Center(child: SkeletonList()))
               : SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: Builder(
@@ -155,7 +155,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                       Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
                                     CurvedAnimation(
                                       parent: _animationController,
-                                      curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
+                                      curve: Curves.easeOutCubic,
                                     ),
                                   ),
                                   child: GestureDetector(
@@ -170,7 +170,6 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                       index: index,
                                       context: context,
                                       gradientColors: gradientColors,
-                                      listGenre: vm.genres,
                                       story: story,
                                     ),
                                   ),
@@ -189,7 +188,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                       Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
                                     CurvedAnimation(
                                       parent: _animationController,
-                                      curve: Interval(index * 0.1, 1.0, curve: Curves.easeOutCubic),
+                                      curve: Curves.easeOutCubic,
                                     ),
                                   ),
                                   child: GestureDetector(
@@ -234,76 +233,78 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
   }
 
   void _showMenuBottomSheet() {
-    final vm = ref.read(homeProvider.notifier);
-    final value = ref.watch(homeProvider);
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      sheetAnimationStyle: const AnimationStyle(curve: Curves.easeInOut),
+      sheetAnimationStyle: AnimationStyle(curve: Curves.easeInOut),
       context: context,
       isDismissible: true,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius:
-                  const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                const Text('Cài đặt'),
-                const SizedBox(height: 25),
-                ListTile(
-                  title: Text(
-                    "Sắp xếp kệ",
-                    style: AppTextStyles.body(context: context, fontSize: 12, ref: ref),
+        return Consumer(builder: (context, ref, child) {
+          final vm = ref.read(homeProvider.notifier);
+          final value = ref.watch(homeProvider);
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius:
+                    const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+                  const Text('Cài đặt'),
+                  const SizedBox(height: 25),
+                  ListTile(
+                    title: Text(
+                      "Sắp xếp kệ",
+                      style: AppTextStyles.body(context: context, fontSize: 12, ref: ref),
+                    ),
+                    trailing: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.view_list_rounded, size: 15),
+                          color: value.viewType == ViewType.list ? Colors.blue : Colors.grey,
+                          tooltip: "Hiển thị dạng danh sách",
+                          onPressed: () async {
+                            await vm.setViewMode(ViewType.list);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.grid_view, size: 15),
+                          color: value.viewType == ViewType.grid1 ? Colors.blue : Colors.grey,
+                          tooltip: "Hiển thị dạng lưới 1",
+                          onPressed: () async {
+                            await vm.setViewMode(ViewType.grid1);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.grid_3x3, size: 15),
+                          color: value.viewType == ViewType.grid2 ? Colors.blue : Colors.grey,
+                          tooltip: "Hiển thị dạng lưới 2",
+                          onPressed: () async {
+                            //await vm.setViewMode(ViewType.grid2);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.grid_on_outlined, size: 15),
+                          color: value.viewType == ViewType.grid3 ? Colors.blue : Colors.grey,
+                          tooltip: "Hiển thị dạng lưới 3",
+                          onPressed: () async {
+                            //await vm.setViewMode(ViewType.grid3);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  trailing: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.view_list_rounded, size: 15),
-                        color: value.viewType == ViewType.list ? Colors.blue : Colors.grey,
-                        tooltip: "Hiển thị dạng danh sách",
-                        onPressed: () async {
-                          await vm.setViewMode(ViewType.list);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.grid_view, size: 15),
-                        color: value.viewType == ViewType.grid1 ? Colors.blue : Colors.grey,
-                        tooltip: "Hiển thị dạng lưới 1",
-                        onPressed: () async {
-                          await vm.setViewMode(ViewType.grid1);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.grid_3x3, size: 15),
-                        color: value.viewType == ViewType.grid2 ? Colors.blue : Colors.grey,
-                        tooltip: "Hiển thị dạng lưới 2",
-                        onPressed: () async {
-                          await vm.setViewMode(ViewType.grid2);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.grid_on_outlined, size: 15),
-                        color: value.viewType == ViewType.grid3 ? Colors.blue : Colors.grey,
-                        tooltip: "Hiển thị dạng lưới 3",
-                        onPressed: () async {
-                          await vm.setViewMode(ViewType.grid3);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
+          );
+        });
       },
     );
   }

@@ -6,7 +6,8 @@ class Story {
   final String author; // Author
   final String? cover;
   final String host;
-
+  final String? status;
+  final String chapter;
   const Story({
     this.id = '',
     required this.name,
@@ -14,6 +15,8 @@ class Story {
     required this.author,
     this.cover,
     required this.host,
+    this.status = '',
+    required this.chapter,
   });
 
   factory Story.fromJson(Map<String, dynamic> json) {
@@ -24,6 +27,8 @@ class Story {
       author: json['author'] ?? '',
       cover: json['cover'],
       host: json['host'] ?? '',
+      status: json['status'] ?? '',
+      chapter: json['chapter'] ?? '',
     );
   }
   factory Story.empty(){
@@ -34,6 +39,8 @@ class Story {
       author: '',
       cover: '',
       host: '',
+      status: '',
+      chapter: '',
     );
   }
 
@@ -44,6 +51,8 @@ class Story {
     'author': author,
     'cover': cover,
     'host': host,
+    'chapter': chapter,
+    'status': status
   };
   @override
   String toString() => 'Story(name: $name, author: $author)';

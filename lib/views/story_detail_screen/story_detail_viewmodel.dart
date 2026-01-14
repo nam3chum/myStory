@@ -7,6 +7,7 @@ import 'package:mystory/services/truyen_crawler/src/services/services.dart';
 import '../../data/database/database_controller.dart';
 import '../../data/services/network/service_genre.dart';
 import '../../data/services/network/service_story.dart';
+import '../../services/truyen_crawler/src/models/chapter_models.dart';
 
 final storyDetailProvider = NotifierProvider.family<StoryDetailViewmodelNotifier, StoryDetailState, String>(
   StoryDetailViewmodelNotifier.new,
@@ -19,8 +20,10 @@ class StoryDetailState {
   final bool isBookmarked;
   final bool hasError;
   final String errorMessage;
+  final List<Chapter> chapterList;
 
   StoryDetailState({
+    required this.chapterList,
     required this.storyDetail,
     required this.genreList,
     required this.isLoading,
@@ -30,6 +33,7 @@ class StoryDetailState {
   });
 
   factory StoryDetailState.initial() => StoryDetailState(
+        chapterList: [],
         storyDetail: StoryDetail.empty(),
         genreList: [],
         isLoading: false,
@@ -45,8 +49,10 @@ class StoryDetailState {
     bool? isBookmarked,
     bool? hasError,
     String? errorMessage,
+    List<Chapter>? chapterList,
   }) {
     return StoryDetailState(
+      chapterList: chapterList ?? this.chapterList,
       storyDetail: storyDetail ?? this.storyDetail,
       genreList: genreList ?? this.genreList,
       isLoading: isLoading ?? this.isLoading,
@@ -68,9 +74,6 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
   StoryDetailState build(String arg) {
     crawler = TruyenFullService();
     storyUrl = arg;
-    fetchStory(storyUrl);
-    checkBookMarked(storyUrl);
-    loadGenres();
     return StoryDetailState.initial();
   }
 
@@ -81,6 +84,15 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
     } catch (e) {
       final localGenres = await dbController.getAllGenres();
       state = state.copyWith(genreList: localGenres);
+    }
+  }
+
+  Future<void> loadChapterList(String storyUrl) async {
+    try{
+     final chapterList = await crawler.getChapterList(storyUrl);
+     state = state.copyWith(chapterList: chapterList.data);
+    } catch (e) {
+      debugPrint('Lỗi tải từ API: $e');
     }
   }
 
