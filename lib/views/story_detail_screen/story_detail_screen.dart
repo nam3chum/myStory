@@ -38,7 +38,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
       vmRead = ref.read(storyDetailProvider(widget.storyUrl).notifier);
       //await vmRead.checkBookMarked(widget.storyUrl);
       await vmRead.fetchStory(widget.storyUrl);
-      await vmRead.loadChapterList(widget.storyUrl);
+      vmRead.loadChapterList(widget.storyUrl);
       await vmRead.loadGenres();
     });
     _animationController.forward();
@@ -53,11 +53,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(storyDetailProvider(widget.storyUrl));
-    // ref.listen(storyDetailProvider(widget.storyUrl), (previous, next) {
-    //   if (next.errorMessage.isNotEmpty && next.errorMessage != previous?.errorMessage) {
-    //     _showOverlayMessage(context, next.errorMessage);
-    //   }
-    // });
+
     if (state.isLoading) {
       return Scaffold(
         backgroundColor: Colors.black,
