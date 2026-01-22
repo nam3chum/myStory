@@ -246,7 +246,11 @@ class _BookshelfScreenState extends ConsumerState<BookshelfScreen> with TickerPr
           onTap: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => StoryDetailScreen(storyUrl: story.link)),
+              MaterialPageRoute(
+                  builder: (context) => StoryDetailScreen(
+                        storyUrl: story.link,
+                        numberOfChapter: story.chapter,
+                      )),
             );
             ref.read(bookshelfProvider.notifier).loadStories();
           },

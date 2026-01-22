@@ -21,8 +21,14 @@ class StoryDetailState {
   final bool hasError;
   final String errorMessage;
   final List<Chapter> chapterList;
+  final bool isChapterLoading;
+  final bool isChapterError;
+  final String chapterErrorMessage;
 
   StoryDetailState({
+    required this.isChapterLoading,
+    required this.isChapterError,
+    required this.chapterErrorMessage,
     required this.chapterList,
     required this.storyDetail,
     required this.genreList,
@@ -40,6 +46,9 @@ class StoryDetailState {
         isBookmarked: false,
         hasError: false,
         errorMessage: '',
+        isChapterLoading: false,
+        isChapterError: false,
+        chapterErrorMessage: '',
       );
 
   StoryDetailState copyWith({
@@ -50,8 +59,14 @@ class StoryDetailState {
     bool? hasError,
     String? errorMessage,
     List<Chapter>? chapterList,
+    bool? isChapterLoading,
+    bool? isChapterError,
+    String? chapterErrorMessage,
   }) {
     return StoryDetailState(
+      isChapterLoading: isChapterLoading ?? this.isChapterLoading,
+      isChapterError: isChapterError ?? this.isChapterError,
+      chapterErrorMessage: chapterErrorMessage ?? this.chapterErrorMessage,
       chapterList: chapterList ?? this.chapterList,
       storyDetail: storyDetail ?? this.storyDetail,
       genreList: genreList ?? this.genreList,
@@ -88,11 +103,15 @@ class StoryDetailViewmodelNotifier extends FamilyNotifier<StoryDetailState, Stri
   }
 
   Future<void> loadChapterList(String storyUrl) async {
-    try{
-     final chapterList = await crawler.getChapterList(storyUrl);
-     state = state.copyWith(chapterList: chapterList.data);
+    state = state.copyWith(isChapterLoading: true, isChapterError: false);
+    try {
+      final chapterList = await crawler.getChapterList(storyUrl);
+      state = state.copyWith(chapterList: chapterList.data);
     } catch (e) {
       debugPrint('Lỗi tải từ API: $e');
+      state = state.copyWith(isChapterError: true, chapterErrorMessage: 'Lỗi tải danh sách chương');
+    } finally {
+      state = state.copyWith(isChapterLoading: false);
     }
   }
 

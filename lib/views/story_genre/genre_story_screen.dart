@@ -44,11 +44,11 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
     super.initState();
     vmRead = ref.read(genreStoryProvider.notifier);
     _scrollController = ScrollController();
-    _scrollController.addListener(() {
-      if (_scrollController.position.maxScrollExtent - _scrollController.position.pixels <= 200) {
-        vmRead.loadStories(widget.genreUrl);
-      }
-    });
+    // _scrollController.addListener(() {
+    //   if (_scrollController.position.maxScrollExtent - _scrollController.position.pixels <= 200) {
+    //     vmRead.loadStories(widget.genreUrl);
+    //   }
+    // });
     _animationController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
     _fadeAnimation = Tween<double>(
       begin: 0.0,
@@ -80,36 +80,21 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
         controller: _scrollController,
         slivers: [
           SliverAppBar(
-            expandedHeight: 220,
+            backgroundColor: genreColor,
+            expandedHeight: 120,
             floating: false,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              title: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Consumer(
-                    builder: (BuildContext context, WidgetRef ref, Widget? child) {
-                      return Text(
-                        widget.genreName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
-                  ),
-                  Text(
-                    '${stories.length} truyện',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
+              centerTitle: true,
+              expandedTitleScale: 2,
+              titlePadding: const EdgeInsets.only(bottom: 15),
+              title: Text(
+                widget.genreName,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
               ),
               background: Container(
                 decoration: BoxDecoration(
@@ -119,13 +104,12 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
                     colors: [
                       genreColor,
                       genreColor.withValues(alpha: 0.8),
-                      genreColor.withValues(alpha: 0.6),
+                      genreColor.withValues(alpha: 0.5),
                     ],
                   ),
                 ),
                 child: Stack(
                   children: [
-                    // Background pattern
                     Positioned(
                       top: 50,
                       right: 20,
@@ -168,7 +152,7 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
             ),
             actions: [
               Container(
-                margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+                margin: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
@@ -232,7 +216,8 @@ class GenreStoryListScreenState extends ConsumerState<GenreStoryListScreen> with
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => StoryDetailScreen(storyUrl: story.link)),
+                                        builder: (context) => StoryDetailScreen(
+                                            storyUrl: story.link, numberOfChapter: story.chapter)),
                                   );
                                 },
                                 child: StoryListItem(

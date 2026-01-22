@@ -10,8 +10,9 @@ import '../commons/story_item.dart';
 
 class StoryDetailScreen extends ConsumerStatefulWidget {
   final String storyUrl;
+  final String numberOfChapter;
 
-  const StoryDetailScreen({super.key, required this.storyUrl});
+  const StoryDetailScreen({required this.numberOfChapter, super.key, required this.storyUrl});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => StoryDetailPageState();
@@ -470,7 +471,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
             Container(width: 1, height: 40, color: Colors.grey[700]),
             _buildStatItem(Icons.favorite, state.storyDetail.rateValue.toString(), "Đánh giá"),
             Container(width: 1, height: 40, color: Colors.grey[700]),
-            _buildStatItem(Icons.menu_book, state.chapterList.length.toString(), "Chương"),
+            _buildStatItem(Icons.menu_book, widget.numberOfChapter.toString(), "Chương"),
           ],
         ),
       ),
@@ -552,7 +553,7 @@ class StoryDetailPageState extends ConsumerState<StoryDetailScreen> with TickerP
                     builder: (context) {
                       return Consumer(builder: (context, ref, child) {
                         final chapters = ref.watch(storyDetailProvider(widget.storyUrl));
-                        return ChapterList(chapters: chapters.chapterList);
+                        return ChapterList(chapters: chapters.chapterList, storyUrl: widget.storyUrl);
                       });
                     },
                   );

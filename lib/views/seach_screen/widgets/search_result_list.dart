@@ -40,7 +40,7 @@ class SearchResultList extends StatelessWidget {
         return GestureDetector(
           onTapDown: (_) {
             Navigator.push(
-                context, MaterialPageRoute(builder: (context) => StoryDetailScreen(storyUrl: story.link)));
+                context, MaterialPageRoute(builder: (context) => StoryDetailScreen(storyUrl: story.link,numberOfChapter: story.chapter,)));
           },
           child: StoryListItem(
               story: story,

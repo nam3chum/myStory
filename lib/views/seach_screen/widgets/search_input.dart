@@ -11,10 +11,12 @@ class SearchInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      
       decoration: const InputDecoration(
         hintText: 'Nhập từ khóa tìm kiếm',
         prefixIcon: Icon(Icons.search),
-        border: OutlineInputBorder(),
+        border:OutlineInputBorder(borderRadius:BorderRadius.all(Radius.circular(15))
+        ),
       ),
       textInputAction: TextInputAction.search,
       onSubmitted: onSubmit,

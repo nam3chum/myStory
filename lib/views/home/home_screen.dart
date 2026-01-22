@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/views/commons/skeleton_list.dart';
@@ -163,7 +164,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => StoryDetailScreen(storyUrl: story.link)),
+                                            builder: (context) => StoryDetailScreen(
+                                                  storyUrl: story.link,
+                                                  numberOfChapter: story.chapter,
+                                                )),
                                       );
                                     },
                                     child: StoryListItem(
@@ -196,7 +200,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => StoryDetailScreen(storyUrl: story.link)),
+                                            builder: (context) => StoryDetailScreen(
+                                                  storyUrl: story.link,
+                                                  numberOfChapter: story.chapter,
+                                                )),
                                       );
                                     },
                                     child: StoryGridItem(
@@ -225,10 +232,24 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                       }
                     },
                   ),
-                ),
+                )
         ],
       ),
       drawer: _buildEnhancedDrawer(),
+      floatingActionButton: TextButton(
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.all(Colors.blue),
+            padding: WidgetStateProperty.all(const EdgeInsets.all(15)),
+            shape: WidgetStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          onPressed: () async {
+            await vmRead.loadStories("${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/");
+          },
+          child: const Text("Tải lại", style: TextStyle(color: Colors.white))),
     );
   }
 
