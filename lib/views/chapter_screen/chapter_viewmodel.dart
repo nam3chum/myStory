@@ -5,19 +5,23 @@ class ChapterScreenState {
   final bool isLoading;
   final String chapterContent;
   String? errorMessage;
+  final bool isShowBar;
 
   ChapterScreenState({
     required this.isLoading,
     this.errorMessage,
     required this.chapterContent,
+    required this.isShowBar,
   });
 
   ChapterScreenState copyWith({
     bool? isLoading,
     String? chapterContent,
     String? errorMessage,
+    bool? isShowBar,
   }) {
     return ChapterScreenState(
+      isShowBar: isShowBar ?? this.isShowBar,
       isLoading: isLoading ?? this.isLoading,
       chapterContent: chapterContent ?? this.chapterContent,
       errorMessage: errorMessage ?? this.errorMessage,
@@ -25,6 +29,7 @@ class ChapterScreenState {
   }
 
   factory ChapterScreenState.initial() => ChapterScreenState(
+        isShowBar: true,
         isLoading: false,
         chapterContent: '',
         errorMessage: null,
@@ -56,6 +61,13 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
     } finally {
       state = state.copyWith(isLoading: false);
     }
+  }
+  void toggleBar() {
+    state = state.copyWith(isShowBar: !state.isShowBar);
+  }
+
+  void hideBar() {
+    state = state.copyWith(isShowBar: false);
   }
 }
 

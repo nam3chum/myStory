@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Widget hiển thị nội dung HTML đơn giản
 class HtmlContent extends StatelessWidget {
   final String htmlData;
 
   const HtmlContent({super.key, required this.htmlData});
 
-  /// Loại bỏ HTML tags
   String _stripHtmlIfNeeded(String htmlString) {
-    RegExp exp = RegExp(r"<[^>]*>&", multiLine: true, caseSensitive: false);
+    RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: false);
     String plainString = htmlString.replaceAll(exp, '');
     return plainString.replaceAll(RegExp(r'\s+'), ' ').trim();
   }
