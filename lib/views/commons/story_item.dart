@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/core/constants/text_styles/app_text_styles.dart';
 import 'package:mystory/views/settings_screen/setting_viewmodel.dart';
 
-import '../../services/truyen_crawler/src/models/detail_models.dart';
 import '../../services/truyen_crawler/src/models/story.dart';
 
 class StoryListItem extends ConsumerWidget {
@@ -23,7 +22,8 @@ class StoryListItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final fontSize = ref.watch(settingsProvider.select((value) => value.fontSize));
+    final fontSize =
+        ref.watch(settingsProvider.select((value) => value.fontSize));
     final accentColor = gradientColors[index % gradientColors.length];
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -44,7 +44,8 @@ class StoryListItem extends ConsumerWidget {
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
                           color: accentColor.withValues(alpha: 0.1),
-                          child: Icon(Icons.auto_stories, color: accentColor.withValues(alpha: 0.5)),
+                          child: Icon(Icons.auto_stories,
+                              color: accentColor.withValues(alpha: 0.5)),
                         );
                       },
                     )),
@@ -62,20 +63,25 @@ class StoryListItem extends ConsumerWidget {
                         story.name,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.body(context: context, ref: ref, fontSize: fontSize),
+                        style: AppTextStyles.body(
+                            context: context, ref: ref, fontSize: fontSize),
                       ),
                       const SizedBox(height: 4),
                       // Tác giả
                       Row(
                         children: [
-                          Icon(Icons.person_outline, size: 12, color: accentColor),
+                          Icon(Icons.person_outline,
+                              size: 12, color: accentColor),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               story.author,
                               style: TextStyle(
                                 fontSize: fontSize - 3,
-                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.7),
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -88,9 +94,11 @@ class StoryListItem extends ConsumerWidget {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _getStatusColor(story.status ?? '').withValues(alpha: 0.1),
+                              color: _getStatusColor(story.status ?? '')
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(

@@ -14,15 +14,15 @@ class SearchScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tìm truyện'),
+        title: SearchInput(
+          onSubmit: viewModel.search,
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(15),
         child: Column(
           children: [
-            SearchInput(
-              onSubmit: viewModel.search,
-            ),
+
             const SizedBox(height: 16),
             Expanded(
               child: SearchResultList(

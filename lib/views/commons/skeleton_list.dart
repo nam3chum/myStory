@@ -18,18 +18,21 @@ class SkeletonList extends StatefulWidget {
   SkeletonListState createState() => SkeletonListState();
 }
 
-class SkeletonListState extends State<SkeletonList> with TickerProviderStateMixin {
+class SkeletonListState extends State<SkeletonList>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(duration: widget.animationDuration, vsync: this);
+    _animationController =
+        AnimationController(duration: widget.animationDuration, vsync: this);
     _opacityAnimation = Tween<double>(
       begin: widget.minOpacity,
       end: widget.maxOpacity,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
+    ).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     _animationController.repeat(reverse: true);
   }
 
@@ -61,7 +64,9 @@ class SkeletonListState extends State<SkeletonList> with TickerProviderStateMixi
               );
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
-                child: Opacity(opacity: adjustedAnimation.value, child: _buildSkeletonItem(context, index)),
+                child: Opacity(
+                    opacity: adjustedAnimation.value,
+                    child: _buildSkeletonItem(context, index)),
               );
             },
           ),
@@ -86,7 +91,10 @@ class SkeletonListState extends State<SkeletonList> with TickerProviderStateMixi
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 8)),
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8)),
         ],
       ),
       child: Card(
@@ -115,7 +123,9 @@ class SkeletonListState extends State<SkeletonList> with TickerProviderStateMixi
                     ),
                     color: Colors.grey[300],
                   ),
-                  child: Center(child: Icon(Icons.image, size: 40, color: Colors.grey[400])),
+                  child: Center(
+                      child:
+                          Icon(Icons.image, size: 40, color: Colors.grey[400])),
                 ),
                 // Skeleton Content
                 Expanded(
@@ -271,19 +281,22 @@ class SkeletonItem extends StatefulWidget {
   SkeletonItemState createState() => SkeletonItemState();
 }
 
-class SkeletonItemState extends State<SkeletonItem> with SingleTickerProviderStateMixin {
+class SkeletonItemState extends State<SkeletonItem>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(duration: widget.animationDuration, vsync: this);
+    _animationController =
+        AnimationController(duration: widget.animationDuration, vsync: this);
 
     _opacityAnimation = Tween<double>(
       begin: widget.minOpacity,
       end: widget.maxOpacity,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
+    ).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
 
     _animationController.repeat(reverse: true);
   }
@@ -304,7 +317,8 @@ class SkeletonItemState extends State<SkeletonItem> with SingleTickerProviderSta
           child: Container(
             height: widget.height,
             width: widget.width,
-            decoration: BoxDecoration(color: Colors.grey[300], borderRadius: widget.borderRadius),
+            decoration: BoxDecoration(
+                color: Colors.grey[300], borderRadius: widget.borderRadius),
           ),
         );
       },
@@ -331,18 +345,21 @@ class ShimmerSkeleton extends StatefulWidget {
   ShimmerSkeletonState createState() => ShimmerSkeletonState();
 }
 
-class ShimmerSkeletonState extends State<ShimmerSkeleton> with SingleTickerProviderStateMixin {
+class ShimmerSkeletonState extends State<ShimmerSkeleton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(duration: widget.duration, vsync: this);
+    _animationController =
+        AnimationController(duration: widget.duration, vsync: this);
     _animation = Tween<double>(
       begin: -2,
       end: 2,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
+    ).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     _animationController.repeat();
   }
 
@@ -362,8 +379,12 @@ class ShimmerSkeletonState extends State<ShimmerSkeleton> with SingleTickerProvi
             return LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: [widget.baseColor, widget.highlightColor, widget.baseColor],
-              stops: [0.0, 0.5, 1.0],
+              colors: [
+                widget.baseColor,
+                widget.highlightColor,
+                widget.baseColor
+              ],
+              stops: const [0.0, 0.5, 1.0],
               transform: GradientRotation(_animation.value),
             ).createShader(bounds);
           },
