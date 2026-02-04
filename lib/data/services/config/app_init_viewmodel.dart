@@ -5,8 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../database/database_controller.dart';
 
-final appInitViewModelProvider =
-    AsyncNotifierProvider<AppInitViewModel, void>(AppInitViewModel.new);
+final appInitViewModelProvider = AsyncNotifierProvider<AppInitViewModel, void>(AppInitViewModel.new);
 
 class AppInitViewModel extends AsyncNotifier<void> {
   @override
@@ -23,7 +22,12 @@ class AppInitViewModel extends AsyncNotifier<void> {
     final isFirstLaunch = !(prefs.getBool('hasLaunched') ?? false);
     if (isFirstLaunch) {
       final genresFromApi = await TruyenFullService().getGenres();
-      await DatabaseController().insertGenres(genresFromApi.data ?? []);
+      try {
+        await DatabaseController().insertGenres(genresFromApi.data ?? []);
+        if (genresFromApi.success) print('Lưu thể loại vào cơ sở dữ liệu thành công');
+      } catch (e) {
+        print('Lỗi khi lưu thể loại vào cơ sở dữ liệu: $e');
+      }
       prefs.setBool('hasLaunched', true);
     }
   }

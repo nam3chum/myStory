@@ -5,7 +5,6 @@ import 'package:sqflite/sqflite.dart';
 
 import '../../services/truyen_crawler/src/models/detail_models.dart';
 
-
 final dbProvider = Provider<DatabaseController>((ref) {
   return DatabaseController();
 });
@@ -14,7 +13,7 @@ class DatabaseController {
   final dbClient = DataBaseProvider.dataBaseProvider;
 
   Future<void> insertGenres(List<Genre> genres) async {
-    final db = await DataBaseProvider.dataBaseProvider.db;
+    final db = await dbClient.db;
 
     final batch = db.batch();
     for (var genre in genres) {
@@ -24,7 +23,7 @@ class DatabaseController {
   }
 
   Future<List<Genre>> getAllGenres() async {
-    final db = await DataBaseProvider.dataBaseProvider.db;
+    final db = await dbClient.db;
     var result = await db.query("genresTable", orderBy: "title ASC");
     return result.isNotEmpty ? result.map((e) => Genre.fromJson(e)).toList() : [];
   }
@@ -105,9 +104,7 @@ class DatabaseController {
     return result.isNotEmpty ? result.map((e) => Story.fromJson(e)).toList() : [];
   }
 
-  // ===== READING PROGRESS METHODS =====
-
-  /// Lưu vị trí đang đọc của chapter
+  // Lưu vị trí đang đọc của chapter
   Future<int> saveReadingProgress(String chapterUrl, double scrollOffset) async {
     final db = await dbClient.db;
     return db.insert(
@@ -121,7 +118,7 @@ class DatabaseController {
     );
   }
 
-  /// Lấy vị trí đang đọc của chapter
+  // Lấy vị trí đang đọc của chapter
   Future<double> getReadingProgress(String chapterUrl) async {
     final db = await dbClient.db;
     final result = await db.query(
@@ -136,6 +133,7 @@ class DatabaseController {
     return 0.0;
   }
 
+  //xoá vị trí đang đọc của chapter
   Future<int> deleteReadingProgress(String chapterUrl) async {
     final db = await dbClient.db;
     return db.delete(
@@ -145,6 +143,7 @@ class DatabaseController {
     );
   }
 
+  //xoá toàn bộ ví trí đang đọc (xoá bảng)
   Future<int> clearAllReadingProgress() async {
     final db = await dbClient.db;
     return db.delete('reading_progress');

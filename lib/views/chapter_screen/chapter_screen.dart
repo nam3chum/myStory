@@ -40,9 +40,11 @@ class ChapterState extends ConsumerState<ChapterScreen> {
   }
 
   void exitReadingMode() {
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.edgeToEdge,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.edgeToEdge,
+      );
+    });
   }
 
   @override
@@ -50,22 +52,19 @@ class ChapterState extends ConsumerState<ChapterScreen> {
     super.initState();
     _chapterListScrollController = ScrollController();
     _contentScrollController = ScrollController();
-    
+
     enterReadingMode();
-    
+
     Future.microtask(() async {
-      await ref
-          .read(chapterViewModelProvider.notifier)
-          .loadChapterList(widget.chapterList);
+      await ref.read(chapterViewModelProvider.notifier).loadChapterList(widget.chapterList);
       await ref
           .read(chapterViewModelProvider.notifier)
           .loadChapterContent(widget.chapterUrl, widget.chapterName);
 
       // Restore scroll position từ lần trước
-      final savedScrollPosition = await ref
-          .read(chapterViewModelProvider.notifier)
-          .loadScrollPosition(widget.chapterUrl);
-      
+      final savedScrollPosition =
+          await ref.read(chapterViewModelProvider.notifier).loadScrollPosition(widget.chapterUrl);
+
       Future.delayed(const Duration(milliseconds: 100), () {
         if (_contentScrollController.hasClients) {
           _contentScrollController.jumpTo(savedScrollPosition);
@@ -78,7 +77,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
         ref.read(chapterViewModelProvider.notifier).markInitialScrolled();
       }
     });
-    
+
     // Lưu scroll position khi cuộn
     _contentScrollController.addListener(() {
       ref.read(chapterViewModelProvider.notifier).updateScrollPosition(_contentScrollController.offset);
@@ -89,21 +88,13 @@ class ChapterState extends ConsumerState<ChapterScreen> {
   void dispose() {
     _chapterListScrollController.dispose();
     _contentScrollController.dispose();
-
-    Future.microtask(() async {
-      await ref
-          .read(chapterViewModelProvider.notifier)
-          .saveScrollPosition(widget.chapterUrl);
-    });
-    
     exitReadingMode();
     super.dispose();
   }
 
   void _scrollToCurrentChapter(String currentChapterUrl) {
     // Tìm index của chapter hiện tại
-    final index =
-        widget.chapterList.indexWhere((ch) => ch.url == currentChapterUrl);
+    final index = widget.chapterList.indexWhere((ch) => ch.url == currentChapterUrl);
     if (index != -1) {
       Future.delayed(const Duration(milliseconds: 100), () {
         if (_chapterListScrollController.hasClients) {
@@ -121,7 +112,6 @@ class ChapterState extends ConsumerState<ChapterScreen> {
   Widget build(BuildContext context) {
     final vm = ref.watch(chapterViewModelProvider);
     final vmRead = ref.read(chapterViewModelProvider.notifier);
-
     if (vm.errorMessage != null) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.chapterName)),
@@ -129,13 +119,11 @@ class ChapterState extends ConsumerState<ChapterScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(vm.errorMessage ?? 'Lỗi không xác định',
-                  style: Theme.of(context).textTheme.bodyMedium),
+              Text(vm.errorMessage ?? 'Lỗi không xác định', style: Theme.of(context).textTheme.bodyMedium),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
-                  await vmRead.loadChapterContent(
-                      widget.chapterUrl, widget.chapterName);
+                  await vmRead.loadChapterContent(widget.chapterUrl, widget.chapterName);
                 },
                 child: const Text('Thử lại'),
               ),
@@ -190,6 +178,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
               curve: Curves.easeOut,
               child: PlaySheetBottom(
                 chapterTitle: widget.chapterName,
+                scrollController: _contentScrollController,
               ),
             ),
           ),
@@ -200,16 +189,13 @@ class ChapterState extends ConsumerState<ChapterScreen> {
   }
 
   Widget _buildChapterListDrawer() {
-    final vm = ref.watch(chapterViewModelProvider);
+    final vm = ref.read(chapterViewModelProvider);
     final listChapter = vm.chapterList;
 
     return Drawer(
       child: Column(
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.brown[800],
-            ),
             child: Text(
               widget.storyName,
               style: const TextStyle(
@@ -219,36 +205,40 @@ class ChapterState extends ConsumerState<ChapterScreen> {
             ),
           ),
           Expanded(
-              child: ListView.builder(
-                  key: PageStorageKey(widget.chapterList.hashCode),
+              child: Scrollbar(
+                  interactive: true,
+                  thumbVisibility: true,
+                  thickness: 8,
                   controller: _chapterListScrollController,
-                  itemCount: widget.chapterList.length,
-                  itemBuilder: (context, index) {
-                    final chapter = listChapter[index];
-                    final isCurrentChapter =
-                        vm.currentChapterUrl == chapter.url;
-                    return ListTile(
-                        title: Text(
-                          chapter.name,
-                          style: TextStyle(
-                            fontWeight: isCurrentChapter
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isCurrentChapter ? Colors.brown[800] : null,
-                          ),
-                        ),
-                        tileColor: isCurrentChapter ? Colors.brown[50] : null,
-                        onTap: () {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChapterScreen(
-                                      storyName: widget.storyName,
-                                      chapterUrl: chapter.url,
-                                      chapterName: chapter.name,
-                                      chapterList: listChapter)));
-                        });
-                  }))
+                  child: ListView.builder(
+                      key: const PageStorageKey('chapter_drawer_list'),
+                      itemExtent: 56,
+                      cacheExtent: 300,
+                      controller: _chapterListScrollController,
+                      itemCount: widget.chapterList.length,
+                      itemBuilder: (context, index) {
+                        final chapter = listChapter[index];
+                        final isCurrentChapter = vm.currentChapterUrl == chapter.url;
+                        return ListTile(
+                            title: Text(
+                              chapter.name,
+                              style: TextStyle(
+                                fontWeight: isCurrentChapter ? FontWeight.bold : FontWeight.normal,
+                                color: isCurrentChapter ? Colors.brown[800] : null,
+                              ),
+                            ),
+                            tileColor: isCurrentChapter ? Colors.brown[50] : null,
+                            onTap: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ChapterScreen(
+                                          storyName: widget.storyName,
+                                          chapterUrl: chapter.url,
+                                          chapterName: chapter.name,
+                                          chapterList: listChapter)));
+                            });
+                      })))
         ],
       ),
     );

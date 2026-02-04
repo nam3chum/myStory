@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../chapter_viewmodel.dart';
 
 class PlaySheetBottom extends ConsumerWidget {
   final String chapterTitle;
-   const PlaySheetBottom({super.key, required this.chapterTitle});
+  final ScrollController scrollController;
+
+  const PlaySheetBottom({required this.scrollController, super.key, required this.chapterTitle});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
- //   final vm = ref.watch(chapterViewModelProvider);
+    //   final vm = ref.watch(chapterViewModelProvider);
+    final vmRead = ref.read(chapterViewModelProvider.notifier);
+    final offset = scrollController.hasClients ? scrollController.offset : 0.0;
+    final maxOffset = scrollController.hasClients ? scrollController.position.maxScrollExtent : 0.0;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       decoration: BoxDecoration(
-        color: const Color(0xFFD4C4A8),
+        color: const Color(0xFFD4C4A8).withValues(alpha: 0.95),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
@@ -31,7 +37,7 @@ class PlaySheetBottom extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '0.4%',
+                '${((offset / maxOffset) * 100).toStringAsFixed(1)} %',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.brown[800],
@@ -85,23 +91,32 @@ class PlaySheetBottom extends ConsumerWidget {
                       overlayColor: Colors.brown[800]?.withValues(alpha: 0.2),
                     ),
                     child: Slider(
-                      value: 0.004,
+                      allowedInteraction: SliderInteraction.tapAndSlide,
+                      value: offset / maxOffset,
                       min: 0,
                       max: 1,
                       onChanged: (value) {
-                        // TODO: Implement scroll to position
+                        scrollController.animateTo(
+                          value * maxOffset,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.ease,
+                        );
                       },
                     ),
                   ),
                 ),
               ),
-              Text(
-                'Tiếp',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.brown[700],
-                ),
-              ),
+              TextButton(
+                  onPressed: () async {
+                    await vmRead.nextChapter();
+                  },
+                  child: Text(
+                    'Tiếp',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.brown[700],
+                    ),
+                  )),
             ],
           ),
 

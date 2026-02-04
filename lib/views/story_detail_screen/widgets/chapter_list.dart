@@ -9,8 +9,7 @@ class ChapterList extends ConsumerWidget {
   final List<Chapter> chapters;
   final String storyUrl;
 
-  const ChapterList(
-      {required this.storyUrl, super.key, required this.chapters});
+  const ChapterList({required this.storyUrl, super.key, required this.chapters});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,29 +30,34 @@ class ChapterList extends ConsumerWidget {
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         padding: const EdgeInsets.all(10),
-        child: ListView.separated(
-          separatorBuilder: (context, index) =>
-              const Divider(color: Colors.black26),
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(
-                chapters[index].name,
-                style: const TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ChapterScreen(
-                              chapterName: chapters[index].name,
-                              chapterUrl: chapters[index].url,
-                              chapterList: chapters,
-                              storyName: state.storyDetail.name,
-                            )));
+        child: Scrollbar(
+            thumbVisibility: true,
+            interactive: true,
+            thickness: 8,
+            radius: const Radius.circular(10),
+            child: ListView.separated(
+              // key: PageStorageKey(storyUrl.hashCode),
+              separatorBuilder: (context, index) => const Divider(color: Colors.black26),
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(
+                    chapters[index].name,
+                    style: const TextStyle(color: Colors.black),
+                  ),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ChapterScreen(
+                                  chapterName: chapters[index].name,
+                                  chapterUrl: chapters[index].url,
+                                  chapterList: chapters,
+                                  storyName: state.storyDetail.name,
+                                )));
+                  },
+                );
               },
-            );
-          },
-          itemCount: chapters.length,
-        ));
+              itemCount: chapters.length,
+            )));
   }
 }
