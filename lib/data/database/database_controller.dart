@@ -23,9 +23,9 @@ class DatabaseController {
     await batch.commit(noResult: true);
   }
 
-  Future<List<Genre>>? getAllGenres() async {
+  Future<List<Genre>> getAllGenres() async {
     final db = await DataBaseProvider.dataBaseProvider.db;
-    var result = await db.query("genresTable", orderBy: "id DESC");
+    var result = await db.query("genresTable", orderBy: "title ASC");
     return result.isNotEmpty ? result.map((e) => Genre.fromJson(e)).toList() : [];
   }
 
@@ -46,7 +46,7 @@ class DatabaseController {
 
   Future<List<Story>> getAllStories({List<String>? columns}) async {
     final db = await dbClient.db;
-    var result = await db.query("storiesTable", columns: columns, orderBy: "updateAt DESC");
+    var result = await db.query("storiesTable", columns: columns, orderBy: "updatedAt DESC");
     return result.isNotEmpty ? result.map((e) => Story.fromJson(e)).toList() : [];
   }
 
@@ -55,8 +55,8 @@ class DatabaseController {
     var result = await db.query(
       "storiesTable",
       columns: columns,
-      where: "(name LIKE ? OR author LIKE ? OR origin_name LIKE ?) OR deleted LIKE ?",
-      whereArgs: ["%$query%", '%$query%', '%$query%', '0'],
+      where: "(name LIKE ? OR author LIKE ? OR link LIKE ?) AND id IS NOT NULL",
+      whereArgs: ["%$query%", '%$query%', '%$query%'],
     );
     return result.isNotEmpty ? result.map((e) => Story.fromJson(e)).toList() : [];
   }
@@ -64,7 +64,7 @@ class DatabaseController {
   Future<int> countStory(String status) async {
     final db = await dbClient.db;
     final count = Sqflite.firstIntValue(
-      await db.rawQuery("SELECT COUNT(*) FROM storiesTable WHERE status = $status AND deleted = 0"),
+      await db.rawQuery("SELECT COUNT(*) FROM storiesTable WHERE status = '$status'"),
     );
 
     return count ?? 0;
@@ -97,11 +97,56 @@ class DatabaseController {
     final db = await dbClient.db;
     var result = await db.query(
       "storiesTable",
-      where: "author = ? AND deleted = 0",
+      where: "author = ? AND id IS NOT NULL",
       whereArgs: [author],
-      orderBy: "date_modified ASC",
+      orderBy: "updatedAt DESC",
     );
 
     return result.isNotEmpty ? result.map((e) => Story.fromJson(e)).toList() : [];
+  }
+
+  // ===== READING PROGRESS METHODS =====
+
+  /// Lưu vị trí đang đọc của chapter
+  Future<int> saveReadingProgress(String chapterUrl, double scrollOffset) async {
+    final db = await dbClient.db;
+    return db.insert(
+      'reading_progress',
+      {
+        'chapterUrl': chapterUrl,
+        'scrollOffset': scrollOffset,
+        'lastReadAt': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Lấy vị trí đang đọc của chapter
+  Future<double> getReadingProgress(String chapterUrl) async {
+    final db = await dbClient.db;
+    final result = await db.query(
+      'reading_progress',
+      where: 'chapterUrl = ?',
+      whereArgs: [chapterUrl],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first['scrollOffset'] as double;
+    }
+    return 0.0;
+  }
+
+  Future<int> deleteReadingProgress(String chapterUrl) async {
+    final db = await dbClient.db;
+    return db.delete(
+      'reading_progress',
+      where: 'chapterUrl = ?',
+      whereArgs: [chapterUrl],
+    );
+  }
+
+  Future<int> clearAllReadingProgress() async {
+    final db = await dbClient.db;
+    return db.delete('reading_progress');
   }
 }

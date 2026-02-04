@@ -8,12 +8,12 @@ class PlaySheetBottom extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final vm = ref.watch(chapterViewModelProvider);
+ //   final vm = ref.watch(chapterViewModelProvider);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       decoration: BoxDecoration(
-        color: Color(0xFFD4C4A8),
+        color: const Color(0xFFD4C4A8),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         boxShadow: [
           BoxShadow(

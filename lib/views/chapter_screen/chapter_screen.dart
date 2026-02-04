@@ -29,6 +29,7 @@ class ChapterScreen extends ConsumerStatefulWidget {
 
 class ChapterState extends ConsumerState<ChapterScreen> {
   late ScrollController _chapterListScrollController;
+  late ScrollController _contentScrollController;
 
   void enterReadingMode() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,7 +49,10 @@ class ChapterState extends ConsumerState<ChapterScreen> {
   void initState() {
     super.initState();
     _chapterListScrollController = ScrollController();
+    _contentScrollController = ScrollController();
+    
     enterReadingMode();
+    
     Future.microtask(() async {
       await ref
           .read(chapterViewModelProvider.notifier)
@@ -57,17 +61,41 @@ class ChapterState extends ConsumerState<ChapterScreen> {
           .read(chapterViewModelProvider.notifier)
           .loadChapterContent(widget.chapterUrl, widget.chapterName);
 
+      // Restore scroll position từ lần trước
+      final savedScrollPosition = await ref
+          .read(chapterViewModelProvider.notifier)
+          .loadScrollPosition(widget.chapterUrl);
+      
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_contentScrollController.hasClients) {
+          _contentScrollController.jumpTo(savedScrollPosition);
+          ref.read(chapterViewModelProvider.notifier).updateScrollPosition(savedScrollPosition);
+        }
+      });
+
       // Auto-scroll tới chapter hiện tại lần đầu tiên
       if (!ref.read(chapterViewModelProvider).hasInitialScrolled) {
-        //_scrollToCurrentChapter(widget.chapterUrl);
         ref.read(chapterViewModelProvider.notifier).markInitialScrolled();
       }
+    });
+    
+    // Lưu scroll position khi cuộn
+    _contentScrollController.addListener(() {
+      ref.read(chapterViewModelProvider.notifier).updateScrollPosition(_contentScrollController.offset);
     });
   }
 
   @override
   void dispose() {
     _chapterListScrollController.dispose();
+    _contentScrollController.dispose();
+
+    Future.microtask(() async {
+      await ref
+          .read(chapterViewModelProvider.notifier)
+          .saveScrollPosition(widget.chapterUrl);
+    });
+    
     exitReadingMode();
     super.dispose();
   }
@@ -80,7 +108,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
       Future.delayed(const Duration(milliseconds: 100), () {
         if (_chapterListScrollController.hasClients) {
           _chapterListScrollController.animateTo(
-            index * 56.0, // Chiều cao mỗi ListTile (~56)
+            index * 56.0,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
           );
@@ -136,6 +164,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
             onTap: vmRead.toggleBar,
             child: SafeArea(
                 child: SingleChildScrollView(
+                    controller: _contentScrollController,
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [

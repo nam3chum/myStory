@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mystory/data/database/database_controller.dart';
 import 'package:mystory/services/truyen_crawler/src/services/services.dart';
 import 'package:mystory/views/story_detail_screen/story_detail_viewmodel.dart';
 
@@ -11,8 +12,8 @@ class ChapterScreenState {
   String? errorMessage;
   final bool isShowBar;
   final String? currentChapterUrl; // Track chapter hiện tại
-  final bool
-      hasInitialScrolled; // Để biết đã scroll tới chapter hiện tại lần đầu chưa
+  final bool hasInitialScrolled; // Để biết đã scroll tới chapter hiện tại lần đầu chưa
+  final double scrollPosition; // Vị trí cuộn hiện tại
 
   ChapterScreenState({
     required this.isLoading,
@@ -22,6 +23,7 @@ class ChapterScreenState {
     required this.chapterList,
     this.currentChapterUrl,
     this.hasInitialScrolled = false,
+    this.scrollPosition = 0.0,
   });
 
   ChapterScreenState copyWith({
@@ -32,6 +34,7 @@ class ChapterScreenState {
     List<Chapter>? chapterList,
     String? currentChapterUrl,
     bool? hasInitialScrolled,
+    double? scrollPosition,
   }) {
     return ChapterScreenState(
       isShowBar: isShowBar ?? this.isShowBar,
@@ -41,6 +44,7 @@ class ChapterScreenState {
       errorMessage: errorMessage ?? this.errorMessage,
       currentChapterUrl: currentChapterUrl ?? this.currentChapterUrl,
       hasInitialScrolled: hasInitialScrolled ?? this.hasInitialScrolled,
+      scrollPosition: scrollPosition ?? this.scrollPosition,
     );
   }
 
@@ -52,16 +56,18 @@ class ChapterScreenState {
         errorMessage: null,
         currentChapterUrl: null,
         hasInitialScrolled: false,
+        scrollPosition: 0.0,
       );
 }
 
 class ChapterViewModel extends Notifier<ChapterScreenState> {
   late final TruyenFullService crawler;
-  late final StoryDetailViewmodelNotifier chapterScreenState;
+  late final DatabaseController dbController;
 
   @override
   ChapterScreenState build() {
     crawler = TruyenFullService();
+    dbController = DatabaseController();
     return ChapterScreenState.initial();
   }
 
@@ -97,6 +103,21 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
 
   void markInitialScrolled() {
     state = state.copyWith(hasInitialScrolled: true);
+  }
+
+  // Cập nhật vị trí cuộn nội dung chương
+  void updateScrollPosition(double offset) {
+    state = state.copyWith(scrollPosition: offset);
+  }
+
+  // Lưu scroll position vào SQLite Database
+  Future<void> saveScrollPosition(String chapterUrl) async {
+    await dbController.saveReadingProgress(chapterUrl, state.scrollPosition);
+  }
+
+  // Lấy scroll position từ SQLite Database
+  Future<double> loadScrollPosition(String chapterUrl) async {
+    return await dbController.getReadingProgress(chapterUrl);
   }
 }
 
