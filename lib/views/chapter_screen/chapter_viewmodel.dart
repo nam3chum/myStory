@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/data/database/database_controller.dart';
 import 'package:mystory/services/truyen_crawler/src/services/services.dart';
@@ -13,7 +14,6 @@ class ChapterScreenState {
   final String? currentChapterUrl; // Track chapter hiện tại
   final bool hasInitialScrolled; // Để biết đã scroll tới chapter hiện tại lần đầu chưa
   final double scrollPosition; // Vị trí cuộn hiện tại
-
   ChapterScreenState({
     required this.isLoading,
     this.errorMessage,

@@ -48,7 +48,7 @@ class ChapterList extends ConsumerWidget {
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ChapterScreen(
+                            builder: (context) => ChapterReaderScreen(
                                   chapterName: chapters[index].name,
                                   chapterUrl: chapters[index].url,
                                   chapterList: chapters,
