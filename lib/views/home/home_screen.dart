@@ -20,7 +20,8 @@ class HomeScreen extends ConsumerStatefulWidget {
   HomeScreenState createState() => HomeScreenState();
 }
 
-class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStateMixin {
+class HomeScreenState extends ConsumerState<HomeScreen>
+    with TickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late List<String> moreButtonOptions;
@@ -38,13 +39,16 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
   void initState() {
     super.initState();
     vmRead = ref.read(homeProvider.notifier);
-    _animationController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 800), vsync: this);
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
+    ).animate(
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
     Future.microtask(() async {
-      await vmRead.loadStories("${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/");
+      await vmRead
+          .loadStories("${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/");
       await vmRead.getViewMode();
     });
     _animationController.forward();
@@ -84,7 +88,11 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [Colors.deepPurple.shade400, Colors.purple.shade300, Colors.pink.shade300],
+                    colors: [
+                      Colors.deepPurple.shade400,
+                      Colors.purple.shade300,
+                      Colors.pink.shade300
+                    ],
                   ),
                 ),
                 child: Stack(
@@ -92,22 +100,30 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                     Positioned(
                       top: 50,
                       right: 20,
-                      child: Icon(Icons.auto_stories, size: 100, color: Colors.white.withValues(alpha: 0.1)),
+                      child: Icon(Icons.auto_stories,
+                          size: 100,
+                          color: Colors.white.withValues(alpha: 0.1)),
                     ),
                     Positioned(
                       bottom: 20,
                       left: 20,
-                      child: Icon(Icons.book, size: 80, color: Colors.white.withValues(alpha: 0.1)),
+                      child: Icon(Icons.book,
+                          size: 80, color: Colors.white.withValues(alpha: 0.1)),
                     ),
                   ],
                 ),
               ),
             ),
             actions: [
-              IconButton(onPressed: () => _showMenuBottomSheet(), icon: const Icon(Icons.sort)),
+              IconButton(
+                  onPressed: () => _showMenuBottomSheet(),
+                  icon: const Icon(Icons.sort)),
               IconButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const SearchScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SearchScreen()));
                   },
                   icon: const Icon(Icons.search)),
               // PopupMenuButton<String>(
@@ -146,13 +162,16 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                       switch (vm.viewType) {
                         case ViewType.list:
                           return SliverList(
-                            delegate: SliverChildBuilderDelegate((context, index) {
+                            delegate:
+                                SliverChildBuilderDelegate((context, index) {
                               final story = vm.stories[index];
                               return FadeTransition(
                                 opacity: _fadeAnimation,
                                 child: SlideTransition(
-                                  position:
-                                      Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+                                  position: Tween<Offset>(
+                                          begin: const Offset(0, 0.3),
+                                          end: Offset.zero)
+                                      .animate(
                                     CurvedAnimation(
                                       parent: _animationController,
                                       curve: Curves.easeOutCubic,
@@ -163,9 +182,11 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => StoryDetailScreen(
+                                            builder: (context) =>
+                                                StoryDetailScreen(
                                                   storyUrl: story.link,
-                                                  numberOfChapter: story.chapter,
+                                                  numberOfChapter:
+                                                      story.chapter,
                                                 )),
                                       );
                                     },
@@ -182,13 +203,16 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                           );
                         case ViewType.grid1:
                           return SliverGrid(
-                            delegate: SliverChildBuilderDelegate((context, index) {
+                            delegate:
+                                SliverChildBuilderDelegate((context, index) {
                               final story = vm.stories[index];
                               return FadeTransition(
                                 opacity: _fadeAnimation,
                                 child: SlideTransition(
-                                  position:
-                                      Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+                                  position: Tween<Offset>(
+                                          begin: const Offset(0, 0.3),
+                                          end: Offset.zero)
+                                      .animate(
                                     CurvedAnimation(
                                       parent: _animationController,
                                       curve: Curves.easeOutCubic,
@@ -199,14 +223,17 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => StoryDetailScreen(
+                                            builder: (context) =>
+                                                StoryDetailScreen(
                                                   storyUrl: story.link,
-                                                  numberOfChapter: story.chapter,
+                                                  numberOfChapter:
+                                                      story.chapter,
                                                 )),
                                       );
                                     },
                                     child: StoryGridItem(
-                                      fontSize: ref.watch(settingsProvider).fontSize,
+                                      fontSize:
+                                          ref.watch(settingsProvider).fontSize,
                                       listGenre: vm.genres,
                                       story: story,
                                       accentColor: gradientColors.first,
@@ -215,7 +242,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                                 ),
                               );
                             }, childCount: vm.stories.length),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
                               crossAxisSpacing: 12,
                               mainAxisSpacing: 12,
@@ -246,7 +274,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
             ),
           ),
           onPressed: () async {
-            await vmRead.loadStories("${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/");
+            await vmRead.loadStories(
+                "${TruyenFullConfig.BASE_URL}/the-loai/tien-hiep/");
           },
           child: const Text("Tải lại", style: TextStyle(color: Colors.white))),
     );
@@ -255,7 +284,7 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
   void _showMenuBottomSheet() {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
-      sheetAnimationStyle: AnimationStyle(curve: Curves.easeInOut),
+      sheetAnimationStyle: const AnimationStyle(curve: Curves.easeInOut),
       context: context,
       isDismissible: true,
       builder: (context) {
@@ -267,8 +296,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius:
-                    const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16)),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -279,7 +309,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                   ListTile(
                     title: Text(
                       "Sắp xếp kệ",
-                      style: AppTextStyles.body(context: context, fontSize: 12, ref: ref),
+                      style: AppTextStyles.body(
+                          context: context, fontSize: 12, ref: ref),
                     ),
                     trailing: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -287,7 +318,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                       children: [
                         IconButton(
                           icon: const Icon(Icons.view_list_rounded, size: 15),
-                          color: value.viewType == ViewType.list ? Colors.blue : Colors.grey,
+                          color: value.viewType == ViewType.list
+                              ? Colors.blue
+                              : Colors.grey,
                           tooltip: "Hiển thị dạng danh sách",
                           onPressed: () async {
                             await vm.setViewMode(ViewType.list);
@@ -295,7 +328,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         ),
                         IconButton(
                           icon: const Icon(Icons.grid_view, size: 15),
-                          color: value.viewType == ViewType.grid1 ? Colors.blue : Colors.grey,
+                          color: value.viewType == ViewType.grid1
+                              ? Colors.blue
+                              : Colors.grey,
                           tooltip: "Hiển thị dạng lưới 1",
                           onPressed: () async {
                             await vm.setViewMode(ViewType.grid1);
@@ -303,7 +338,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         ),
                         IconButton(
                           icon: const Icon(Icons.grid_3x3, size: 15),
-                          color: value.viewType == ViewType.grid2 ? Colors.blue : Colors.grey,
+                          color: value.viewType == ViewType.grid2
+                              ? Colors.blue
+                              : Colors.grey,
                           tooltip: "Hiển thị dạng lưới 2",
                           onPressed: () async {
                             //await vm.setViewMode(ViewType.grid2);
@@ -311,7 +348,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         ),
                         IconButton(
                           icon: const Icon(Icons.grid_on_outlined, size: 15),
-                          color: value.viewType == ViewType.grid3 ? Colors.blue : Colors.grey,
+                          color: value.viewType == ViewType.grid3
+                              ? Colors.blue
+                              : Colors.grey,
                           tooltip: "Hiển thị dạng lưới 3",
                           onPressed: () async {
                             //await vm.setViewMode(ViewType.grid3);
@@ -358,19 +397,20 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.category, color: Colors.white, size: 28),
+                          child: const Icon(Icons.category,
+                              color: Colors.white, size: 28),
                         ),
                         const SizedBox(width: 16),
-                        Text('Thể loại', style: AppTextStyles.title(context: context, ref: ref)),
+                        Text('Thể loại',
+                            style: AppTextStyles.title(
+                                context: context, ref: ref)),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    Expanded(
-
-                      child: Text(
-                        'Khám phá các thể loại truyện được yêu thích nhất hiện nay',
-                        style: AppTextStyles.body(context: context, opacity: 0.8, ref: ref),
-                      ),
+                    Text(
+                      'Khám phá ${vm.genres.length} thể loại',
+                      style: AppTextStyles.body(
+                          context: context, opacity: 0.8, ref: ref),
                     ),
                   ],
                 ),
@@ -390,7 +430,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                   margin: const EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    border: isSelected ? Border.all(color: Colors.white, width: 1) : null,
+                    border: isSelected
+                        ? Border.all(color: Colors.white, width: 1)
+                        : null,
                   ),
                   child: ListTile(
                     leading: Container(
@@ -399,13 +441,16 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(Icons.bookmark, color: Theme.of(context).primaryColorDark, size: 20),
+                      child: Icon(Icons.bookmark,
+                          color: Theme.of(context).primaryColorDark, size: 20),
                     ),
                     title: Text(
                       genre.title,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: isSelected ? Theme.of(context).hintColor : Colors.grey[800],
+                        color: isSelected
+                            ? Theme.of(context).hintColor
+                            : Colors.grey[800],
                         fontSize: 16,
                         fontFamily: fontFamily,
                       ),
@@ -416,7 +461,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderState
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => GenreStoryListScreen(genreName: genre.title, genreUrl: genre.input),
+                          builder: (_) => GenreStoryListScreen(
+                              genreName: genre.title, genreUrl: genre.input),
                         ),
                       );
                     },

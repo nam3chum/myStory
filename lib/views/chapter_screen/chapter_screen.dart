@@ -7,13 +7,13 @@ import 'package:mystory/views/chapter_screen/widgets/chapter_content.dart';
 import '../../services/truyen_crawler/src/models/chapter_models.dart';
 import 'chapter_viewmodel.dart';
 
-class ChapterReaderScreen extends ConsumerStatefulWidget {
+class ChapterScreen extends ConsumerStatefulWidget {
   final String chapterUrl;
   final String chapterName;
   final List<Chapter> chapterList;
   final String storyName;
 
-  const ChapterReaderScreen({
+  const ChapterScreen({
     super.key,
     required this.chapterUrl,
     required this.chapterName,
@@ -23,11 +23,11 @@ class ChapterReaderScreen extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
-    return ChapterReaderState();
+    return ChapterState();
   }
 }
 
-class ChapterReaderState extends ConsumerState<ChapterReaderScreen> {
+class ChapterState extends ConsumerState<ChapterScreen> {
   late ScrollController _chapterListScrollController;
   late ScrollController _contentScrollController;
 
@@ -50,9 +50,9 @@ class ChapterReaderState extends ConsumerState<ChapterReaderScreen> {
     super.initState();
     _chapterListScrollController = ScrollController();
     _contentScrollController = ScrollController();
-
+    
     enterReadingMode();
-
+    
     Future.microtask(() async {
       await ref
           .read(chapterViewModelProvider.notifier)
@@ -65,13 +65,11 @@ class ChapterReaderState extends ConsumerState<ChapterReaderScreen> {
       final savedScrollPosition = await ref
           .read(chapterViewModelProvider.notifier)
           .loadScrollPosition(widget.chapterUrl);
-
+      
       Future.delayed(const Duration(milliseconds: 100), () {
         if (_contentScrollController.hasClients) {
           _contentScrollController.jumpTo(savedScrollPosition);
-          ref
-              .read(chapterViewModelProvider.notifier)
-              .updateScrollPosition(savedScrollPosition);
+          ref.read(chapterViewModelProvider.notifier).updateScrollPosition(savedScrollPosition);
         }
       });
 
@@ -80,20 +78,25 @@ class ChapterReaderState extends ConsumerState<ChapterReaderScreen> {
         ref.read(chapterViewModelProvider.notifier).markInitialScrolled();
       }
     });
-
+    
     // Lưu scroll position khi cuộn
     _contentScrollController.addListener(() {
-      ref
-          .read(chapterViewModelProvider.notifier)
-          .updateScrollPosition(_contentScrollController.offset);
+      ref.read(chapterViewModelProvider.notifier).updateScrollPosition(_contentScrollController.offset);
     });
   }
 
   @override
   void dispose() {
-    exitReadingMode();
     _chapterListScrollController.dispose();
     _contentScrollController.dispose();
+
+    Future.microtask(() async {
+      await ref
+          .read(chapterViewModelProvider.notifier)
+          .saveScrollPosition(widget.chapterUrl);
+    });
+    
+    exitReadingMode();
     super.dispose();
   }
 
@@ -118,6 +121,7 @@ class ChapterReaderState extends ConsumerState<ChapterReaderScreen> {
   Widget build(BuildContext context) {
     final vm = ref.watch(chapterViewModelProvider);
     final vmRead = ref.read(chapterViewModelProvider.notifier);
+
     if (vm.errorMessage != null) {
       return Scaffold(
         appBar: AppBar(title: Text(widget.chapterName)),
@@ -141,65 +145,71 @@ class ChapterReaderState extends ConsumerState<ChapterReaderScreen> {
       );
     }
 
+    if (vm.isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(widget.chapterName),
       //   elevation: 0,
       // ),
-      body: vm.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                /// CONTENT
-                GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: vmRead.toggleBar,
-                  child: SafeArea(
-                      child: SingleChildScrollView(
-                          controller: _contentScrollController,
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              Text(
-                                widget.chapterName,
-                                style: Theme.of(context).textTheme.titleLarge,
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 16),
-                              if (vm.chapterContent.isNotEmpty)
-                                HtmlContent(htmlData: vm.chapterContent)
-                              else
-                                const Center(child: Text("không có nội dung"))
-                            ],
-                          ))),
-                ),
+      body: Stack(
+        children: [
+          /// CONTENT
+          GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: vmRead.toggleBar,
+            child: SafeArea(
+                child: SingleChildScrollView(
+                    controller: _contentScrollController,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Text(
+                          widget.chapterName,
+                          style: Theme.of(context).textTheme.titleLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        if (vm.chapterContent.isNotEmpty)
+                          HtmlContent(htmlData: vm.chapterContent)
+                        else
+                          const Center(child: Text("không có nội dung"))
+                      ],
+                    ))),
+          ),
 
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: AnimatedSlide(
-                    offset: vm.isShowBar ? Offset.zero : const Offset(0, 1),
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOut,
-                    child: PlaySheetBottom(
-                      chapterTitle: widget.chapterName,
-                      scrollController: _contentScrollController,
-                    ),
-                  ),
-                ),
-              ],
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AnimatedSlide(
+              offset: vm.isShowBar ? Offset.zero : const Offset(0, 1),
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+              child: PlaySheetBottom(
+                chapterTitle: widget.chapterName,
+              ),
             ),
+          ),
+        ],
+      ),
       drawer: _buildChapterListDrawer(),
     );
   }
 
   Widget _buildChapterListDrawer() {
-    final vm = ref.read(chapterViewModelProvider);
+    final vm = ref.watch(chapterViewModelProvider);
     final listChapter = vm.chapterList;
 
     return Drawer(
       child: Column(
         children: [
           DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.brown[800],
+            ),
             child: Text(
               widget.storyName,
               style: const TextStyle(
@@ -209,45 +219,36 @@ class ChapterReaderState extends ConsumerState<ChapterReaderScreen> {
             ),
           ),
           Expanded(
-              child: Scrollbar(
-                  interactive: true,
-                  thumbVisibility: true,
-                  thickness: 8,
+              child: ListView.builder(
+                  key: PageStorageKey(widget.chapterList.hashCode),
                   controller: _chapterListScrollController,
-                  child: ListView.builder(
-                      key: const PageStorageKey('chapter_drawer_list'),
-                      itemExtent: 56,
-                      cacheExtent: 300,
-                      controller: _chapterListScrollController,
-                      itemCount: widget.chapterList.length,
-                      itemBuilder: (context, index) {
-                        final chapter = listChapter[index];
-                        final isCurrentChapter =
-                            vm.currentChapterUrl == chapter.url;
-                        return ListTile(
-                            title: Text(
-                              chapter.name,
-                              style: TextStyle(
-                                fontWeight: isCurrentChapter
-                                    ? FontWeight.bold
-                                    : FontWeight.normal,
-                                color:
-                                    isCurrentChapter ? Colors.brown[800] : null,
-                              ),
-                            ),
-                            tileColor:
-                                isCurrentChapter ? Colors.brown[50] : null,
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ChapterReaderScreen(
-                                          storyName: widget.storyName,
-                                          chapterUrl: chapter.url,
-                                          chapterName: chapter.name,
-                                          chapterList: listChapter)));
-                            });
-                      })))
+                  itemCount: widget.chapterList.length,
+                  itemBuilder: (context, index) {
+                    final chapter = listChapter[index];
+                    final isCurrentChapter =
+                        vm.currentChapterUrl == chapter.url;
+                    return ListTile(
+                        title: Text(
+                          chapter.name,
+                          style: TextStyle(
+                            fontWeight: isCurrentChapter
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isCurrentChapter ? Colors.brown[800] : null,
+                          ),
+                        ),
+                        tileColor: isCurrentChapter ? Colors.brown[50] : null,
+                        onTap: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChapterScreen(
+                                      storyName: widget.storyName,
+                                      chapterUrl: chapter.url,
+                                      chapterName: chapter.name,
+                                      chapterList: listChapter)));
+                        });
+                  }))
         ],
       ),
     );

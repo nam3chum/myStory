@@ -21,7 +21,7 @@ class DataBaseProvider {
         // Table lưu các thể loại/genre
         await db.execute('''
         CREATE TABLE genresTable (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          id TEXT PRIMARY KEY,
           title TEXT NOT NULL,
           input TEXT NOT NULL
         )
