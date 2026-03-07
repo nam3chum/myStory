@@ -1,7 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mystory/data/database/database_controller.dart';
 import 'package:mystory/services/truyen_crawler/src/services/services.dart';
-import 'package:mystory/views/story_detail_screen/story_detail_viewmodel.dart';
 
 import '../../services/truyen_crawler/src/models/chapter_models.dart';
 
@@ -14,7 +14,6 @@ class ChapterScreenState {
   final String? currentChapterUrl; // Track chapter hiện tại
   final bool hasInitialScrolled; // Để biết đã scroll tới chapter hiện tại lần đầu chưa
   final double scrollPosition; // Vị trí cuộn hiện tại
-
   ChapterScreenState({
     required this.isLoading,
     this.errorMessage,
@@ -93,6 +92,26 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
     }
   }
 
+  Future<void> nextChapter() async {
+    if (state.chapterList.isNotEmpty) {
+      final currentIndex = state.chapterList.indexWhere((ch) => ch.url == state.currentChapterUrl);
+      if (currentIndex != -1 && currentIndex < state.chapterList.length - 1) {
+        final nextChapter = state.chapterList[currentIndex + 1];
+        await loadChapterContent(nextChapter.url, nextChapter.name);
+      }
+    }
+  }
+
+  Future<void> previousChapter() async {
+    if (state.chapterList.isNotEmpty) {
+      final currentIndex = state.chapterList.indexWhere((ch) => ch.url == state.currentChapterUrl);
+      if (currentIndex != -1 && currentIndex > 0) {
+        final previousChapter = state.chapterList[currentIndex - 1];
+        await loadChapterContent(previousChapter.url, previousChapter.name);
+      }
+    }
+  }
+
   Future<void> loadChapterList(List<Chapter> chapterList) async {
     state = state.copyWith(chapterList: chapterList);
   }
@@ -121,6 +140,4 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
   }
 }
 
-final chapterViewModelProvider =
-    NotifierProvider<ChapterViewModel, ChapterScreenState>(
-        ChapterViewModel.new);
+final chapterViewModelProvider = NotifierProvider<ChapterViewModel, ChapterScreenState>(ChapterViewModel.new);
