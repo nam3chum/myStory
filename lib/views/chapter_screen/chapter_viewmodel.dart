@@ -92,6 +92,7 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
     }
   }
 
+  //update 
   Future<void> nextChapter() async {
     if (state.chapterList.isNotEmpty) {
       final currentIndex = state.chapterList.indexWhere((ch) => ch.url == state.currentChapterUrl);
