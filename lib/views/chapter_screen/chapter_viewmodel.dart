@@ -12,7 +12,8 @@ class ChapterScreenState {
   String? errorMessage;
   final bool isShowBar;
   final String? currentChapterUrl; // Track chapter hiện tại
-  final bool hasInitialScrolled; // Để biết đã scroll tới chapter hiện tại lần đầu chưa
+  final bool
+      hasInitialScrolled; // Để biết đã scroll tới chapter hiện tại lần đầu chưa
   final double scrollPosition; // Vị trí cuộn hiện tại
   ChapterScreenState({
     required this.isLoading,
@@ -59,7 +60,7 @@ class ChapterScreenState {
       );
 }
 
-class ChapterViewModel extends Notifier<ChapterScreenState> {
+class ChapterViewModel extends AutoDisposeNotifier<ChapterScreenState> {
   late final TruyenFullService crawler;
   late final DatabaseController dbController;
 
@@ -77,13 +78,16 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
       final result = await crawler.getChapterContent(chapterUrl, chapterName);
 
       if (result.success && result.data != null) {
+        final content = result.data?.content ?? '';
         state = state.copyWith(
-            chapterContent: result.data?.content,
+            chapterContent: content,
             isLoading: false,
             errorMessage: null,
             currentChapterUrl: chapterUrl);
       } else {
-        state = state.copyWith(isLoading: false, errorMessage: result.error);
+        state = state.copyWith(
+            isLoading: false,
+            errorMessage: result.error ?? 'Lỗi không xác định');
       }
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
@@ -93,8 +97,9 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
   }
 
   Future<void> nextChapter() async {
-    if (state.chapterList.isNotEmpty) {
-      final currentIndex = state.chapterList.indexWhere((ch) => ch.url == state.currentChapterUrl);
+    if (state.chapterList.isNotEmpty && state.currentChapterUrl != null) {
+      final currentIndex = state.chapterList
+          .indexWhere((ch) => ch.url == state.currentChapterUrl);
       if (currentIndex != -1 && currentIndex < state.chapterList.length - 1) {
         final nextChapter = state.chapterList[currentIndex + 1];
         await loadChapterContent(nextChapter.url, nextChapter.name);
@@ -103,8 +108,9 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
   }
 
   Future<void> previousChapter() async {
-    if (state.chapterList.isNotEmpty) {
-      final currentIndex = state.chapterList.indexWhere((ch) => ch.url == state.currentChapterUrl);
+    if (state.chapterList.isNotEmpty && state.currentChapterUrl != null) {
+      final currentIndex = state.chapterList
+          .indexWhere((ch) => ch.url == state.currentChapterUrl);
       if (currentIndex != -1 && currentIndex > 0) {
         final previousChapter = state.chapterList[currentIndex - 1];
         await loadChapterContent(previousChapter.url, previousChapter.name);
@@ -140,4 +146,6 @@ class ChapterViewModel extends Notifier<ChapterScreenState> {
   }
 }
 
-final chapterViewModelProvider = NotifierProvider<ChapterViewModel, ChapterScreenState>(ChapterViewModel.new);
+final chapterViewModelProvider =
+    NotifierProvider.autoDispose<ChapterViewModel, ChapterScreenState>(
+        ChapterViewModel.new);

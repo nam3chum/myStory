@@ -7,13 +7,13 @@ import 'package:mystory/views/chapter_screen/widgets/chapter_content.dart';
 import '../../services/truyen_crawler/src/models/chapter_models.dart';
 import 'chapter_viewmodel.dart';
 
-class ChapterScreen extends ConsumerStatefulWidget {
+class ChapterReaderScreen extends ConsumerStatefulWidget {
   final String chapterUrl;
   final String chapterName;
   final List<Chapter> chapterList;
   final String storyName;
 
-  const ChapterScreen({
+  const ChapterReaderScreen({
     super.key,
     required this.chapterUrl,
     required this.chapterName,
@@ -27,7 +27,7 @@ class ChapterScreen extends ConsumerStatefulWidget {
   }
 }
 
-class ChapterState extends ConsumerState<ChapterScreen> {
+class ChapterState extends ConsumerState<ChapterReaderScreen> {
   late ScrollController _chapterListScrollController;
   late ScrollController _contentScrollController;
 
@@ -50,38 +50,53 @@ class ChapterState extends ConsumerState<ChapterScreen> {
     super.initState();
     _chapterListScrollController = ScrollController();
     _contentScrollController = ScrollController();
-    
+
     enterReadingMode();
-    
+
     Future.microtask(() async {
+      if (!mounted) return;
+
       await ref
           .read(chapterViewModelProvider.notifier)
           .loadChapterList(widget.chapterList);
+
+      if (!mounted) return;
+
       await ref
           .read(chapterViewModelProvider.notifier)
           .loadChapterContent(widget.chapterUrl, widget.chapterName);
+
+      if (!mounted) return;
 
       // Restore scroll position từ lần trước
       final savedScrollPosition = await ref
           .read(chapterViewModelProvider.notifier)
           .loadScrollPosition(widget.chapterUrl);
-      
+
+      if (!mounted) return;
+
       Future.delayed(const Duration(milliseconds: 100), () {
-        if (_contentScrollController.hasClients) {
+        if (mounted && _contentScrollController.hasClients) {
           _contentScrollController.jumpTo(savedScrollPosition);
-          ref.read(chapterViewModelProvider.notifier).updateScrollPosition(savedScrollPosition);
+          ref
+              .read(chapterViewModelProvider.notifier)
+              .updateScrollPosition(savedScrollPosition);
         }
       });
 
       // Auto-scroll tới chapter hiện tại lần đầu tiên
-      if (!ref.read(chapterViewModelProvider).hasInitialScrolled) {
+      if (mounted && !ref.read(chapterViewModelProvider).hasInitialScrolled) {
         ref.read(chapterViewModelProvider.notifier).markInitialScrolled();
       }
     });
-    
+
     // Lưu scroll position khi cuộn
     _contentScrollController.addListener(() {
-      ref.read(chapterViewModelProvider.notifier).updateScrollPosition(_contentScrollController.offset);
+      if (mounted) {
+        ref
+            .read(chapterViewModelProvider.notifier)
+            .updateScrollPosition(_contentScrollController.offset);
+      }
     });
   }
 
@@ -95,7 +110,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
           .read(chapterViewModelProvider.notifier)
           .saveScrollPosition(widget.chapterUrl);
     });
-    
+
     exitReadingMode();
     super.dispose();
   }
@@ -190,6 +205,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
               curve: Curves.easeOut,
               child: PlaySheetBottom(
                 chapterTitle: widget.chapterName,
+                scrollController: _contentScrollController,
               ),
             ),
           ),
@@ -242,7 +258,7 @@ class ChapterState extends ConsumerState<ChapterScreen> {
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => ChapterScreen(
+                                  builder: (context) => ChapterReaderScreen(
                                       storyName: widget.storyName,
                                       chapterUrl: chapter.url,
                                       chapterName: chapter.name,

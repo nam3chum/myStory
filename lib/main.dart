@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mystory/services/truyen_crawler/src/isar_services/isar_service.dart';
 import 'package:mystory/views/commons/app_init_error_view.dart';
 
 import 'package:mystory/views/main_screen/main_screen.dart';
@@ -11,7 +12,8 @@ import 'data/services/config/service_get_it.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setLocator();
-  runApp(const ProviderScope(child: AppStarter()));
+  //await IsarService.init();
+    runApp(const ProviderScope(child: AppStarter()));
 }
 
 class AppStarter extends ConsumerStatefulWidget {
